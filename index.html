@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#140921" />
+  <title>Forza Horizon Tune Lab</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <nav class="topbar" aria-label="Main navigation">
+        <a href="#setup">Setup</a>
+        <a href="#results">Tune</a>
+        <a href="#fix">Fix</a>
+        <a href="#saved">Saved</a>
+      </nav>
+      <div class="hero-content">
+        <p class="eyebrow">Forza Horizon tuning calculator</p>
+        <h1>Build a tune for grip, drift, or drag.</h1>
+        <p class="hero-copy">Pick a class, surface, drivetrain, and gearbox target. The app generates a starting tune with game-facing suspension settings, diff settings, tire pressures, and gear ratios.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#setup">Start tuning</a>
+          <a class="button ghost" href="#fix">Troubleshoot</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel setup-panel" id="setup">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Step 1</p>
+            <h2>Choose the build personality</h2>
+          </div>
+          <span class="pill">Xbox sidekick ready</span>
+        </div>
+
+        <div class="mode-grid" aria-label="Tune type">
+          <button type="button" class="option-card active" data-race="grip">
+            <span>Grip</span>
+            <strong>Corner speed</strong>
+            <small>Road, street, circuit</small>
+          </button>
+          <button type="button" class="option-card" data-race="drift">
+            <span>Drift</span>
+            <strong>Controlled oversteer</strong>
+            <small>Angle, smoke, rotation</small>
+          </button>
+          <button type="button" class="option-card" data-race="drag">
+            <span>Drag</span>
+            <strong>Launch and pull</strong>
+            <small>Trap speed, traction</small>
+          </button>
+        </div>
+
+        <div class="surface-row" aria-label="Surface type">
+          <button type="button" class="option-chip active" data-surface="pavement">Pavement</button>
+          <button type="button" class="option-chip" data-surface="mixed">Mixed</button>
+          <button type="button" class="option-chip" data-surface="offroad">Offroad</button>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="carSetupTitle">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h2 id="carSetupTitle">Car and gearbox setup</h2>
+          </div>
+        </div>
+
+        <form id="tuneForm" class="form-grid">
+          <label>
+            <span>Car name</span>
+            <input id="carName" type="text" value="Test build" autocomplete="off" />
+          </label>
+
+          <label>
+            <span>Class</span>
+            <select id="carClass">
+              <option>D</option>
+              <option>C</option>
+              <option>B</option>
+              <option selected>A</option>
+              <option>S1</option>
+              <option>S2</option>
+              <option>X</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Drivetrain</span>
+            <select id="drivetrain">
+              <option>FWD</option>
+              <option>RWD</option>
+              <option selected>AWD</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Tire compound</span>
+            <select id="tireCompound">
+              <option value="stock">Stock</option>
+              <option value="street">Street</option>
+              <option value="sport" selected>Sport</option>
+              <option value="race">Race</option>
+              <option value="drag">Drag</option>
+              <option value="rally">Rally</option>
+              <option value="offroad">Offroad</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Route style</span>
+            <select id="routeStyle">
+              <option value="technical">Technical</option>
+              <option value="balanced" selected>Balanced</option>
+              <option value="highspeed">High-speed</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Horsepower</span>
+            <input id="horsepower" type="number" value="520" min="60" max="2000" />
+          </label>
+
+          <label>
+            <span>Weight</span>
+            <input id="weight" type="number" value="3200" min="1200" max="6500" />
+          </label>
+
+          <label>
+            <span>Front weight %</span>
+            <input id="weightDistribution" type="number" value="52" min="35" max="70" step="0.1" />
+          </label>
+
+          <label>
+            <span>Gear count</span>
+            <input id="gearCount" type="number" value="6" min="4" max="10" />
+          </label>
+
+          <label>
+            <span>Redline RPM</span>
+            <input id="redlineRpm" type="number" value="7200" min="4000" max="12000" step="100" />
+          </label>
+
+          <label>
+            <span>Target top speed</span>
+            <input id="idealTopSpeedMph" type="number" min="60" max="360" />
+          </label>
+
+          <label>
+            <span>Tire diameter, inches</span>
+            <input id="tireDiameterInches" type="number" value="26" min="18" max="36" step="0.1" />
+          </label>
+
+          <label class="checkbox-label">
+            <input id="adjustableAero" type="checkbox" checked />
+            <span>Adjustable aero installed</span>
+          </label>
+        </form>
+
+        <div class="action-row">
+          <button type="button" class="button primary" id="generateBtn">Generate tune</button>
+          <button type="button" class="button ghost" id="saveBtn">Save tune</button>
+          <button type="button" class="button ghost" id="exportBtn">Export JSON</button>
+          <button type="button" class="button quiet" id="resetBtn">Reset</button>
+        </div>
+      </section>
+
+      <section id="results" class="results-anchor" aria-live="polite">
+        <div id="tuneOutput"></div>
+      </section>
+
+      <section class="panel" id="fix">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Fix my tune</p>
+            <h2>Tap the symptom</h2>
+          </div>
+        </div>
+        <div class="fix-grid">
+          <button type="button" class="fix-button" data-fix="understeerEntry">Understeers on entry</button>
+          <button type="button" class="fix-button" data-fix="understeerThrottle">Understeers on throttle</button>
+          <button type="button" class="fix-button" data-fix="oversteerEntry">Oversteers on entry</button>
+          <button type="button" class="fix-button" data-fix="powerOversteer">Power oversteer</button>
+          <button type="button" class="fix-button" data-fix="wheelspinLaunch">Wheelspin on launch</button>
+          <button type="button" class="fix-button" data-fix="bouncingOffroad">Bouncing offroad</button>
+          <button type="button" class="fix-button" data-fix="limiterEarly">Hits limiter too early</button>
+          <button type="button" class="fix-button" data-fix="neverTopGear">Never reaches top gear</button>
+        </div>
+        <div id="correctionOutput" class="correction-output">
+          <p class="muted">Pick a symptom and the app will suggest small tuning nudges.</p>
+        </div>
+      </section>
+
+      <section class="panel" id="saved">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Garage shelf</p>
+            <h2>Saved tunes</h2>
+          </div>
+          <button type="button" class="button quiet" id="clearSavedBtn">Clear saved</button>
+        </div>
+        <div id="savedList" class="saved-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="presets.js"></script>
+  <script src="gearboxEngine.js"></script>
+  <script src="tuningEngine.js"></script>
+  <script src="storage.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

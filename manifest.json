@@ -1,0 +1,16 @@
+{
+  "name": "Forza Horizon Tune Lab",
+  "short_name": "Tune Lab",
+  "description": "A Forza Horizon tuning calculator for grip, drift, and drag builds across pavement, mixed, and offroad surfaces.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#09030f",
+  "theme_color": "#140921",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
