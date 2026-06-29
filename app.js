@@ -1,10 +1,11 @@
-/* Forza Tune App - UI wiring */
+/* FH6GPT Tune Lab - UI wiring */
 (function () {
   const FT = window.ForzaTune;
   let state = {
     raceType: 'grip',
     surface: 'pavement',
     currentTune: null,
+    frontWeightTouched: false,
   };
 
   const $ = (selector) => document.querySelector(selector);
@@ -37,6 +38,7 @@
       button.addEventListener('click', () => {
         state.raceType = button.dataset.race;
         updateActiveButtons();
+        syncSuspensionForMode();
         setDefaultTopSpeed();
         generateAndRender();
       });
@@ -46,6 +48,7 @@
       button.addEventListener('click', () => {
         state.surface = button.dataset.surface;
         updateActiveButtons();
+        syncSuspensionForMode();
         setDefaultTopSpeed();
         generateAndRender();
       });
@@ -55,6 +58,17 @@
   function setupFormDefaults() {
     setDefaultTopSpeed();
     updateActiveButtons();
+
+    $('#weightDistribution').addEventListener('input', () => {
+      state.frontWeightTouched = true;
+    });
+
+    $('#engineLocation').addEventListener('change', () => {
+      if (!state.frontWeightTouched) {
+        const preset = FT.ENGINE_LOCATION_DEFAULTS[$('#engineLocation').value] || FT.ENGINE_LOCATION_DEFAULTS.front;
+        $('#weightDistribution').value = preset.frontWeight;
+      }
+    });
 
     ['change', 'input'].forEach((eventName) => {
       form.addEventListener(eventName, (event) => {
@@ -74,9 +88,27 @@
       form.reset();
       state.raceType = 'grip';
       state.surface = 'pavement';
+      state.frontWeightTouched = false;
       setDefaultTopSpeed();
       updateActiveButtons();
       generateAndRender();
+    });
+
+    $('#copyBtn').addEventListener('click', async () => {
+      if (!state.currentTune) generateAndRender();
+      const text = formatTuneForClipboard(state.currentTune);
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Tune copied to clipboard.');
+      } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+        showToast('Tune copied to clipboard.');
+      }
     });
 
     $('#saveBtn').addEventListener('click', () => {
@@ -120,6 +152,13 @@
     });
   }
 
+  function syncSuspensionForMode() {
+    const suspensionInput = $('#suspensionType');
+    if (state.surface === 'offroad' || state.surface === 'mixed') suspensionInput.value = 'rally';
+    if (state.raceType === 'drift') suspensionInput.value = 'drift';
+    if (state.raceType === 'drag' && state.surface === 'pavement') suspensionInput.value = 'race';
+  }
+
   function setDefaultTopSpeed() {
     const speed = FT.getDefaultTopSpeed(carClassInput.value, state.raceType, state.surface, routeStyleInput.value);
     topSpeedInput.value = speed;
@@ -133,15 +172,21 @@
       surface: state.surface,
       routeStyle: $('#routeStyle').value,
       drivetrain: $('#drivetrain').value,
+      engineLocation: $('#engineLocation').value,
+      bodyType: $('#bodyType').value,
       tireCompound: $('#tireCompound').value,
+      suspensionType: $('#suspensionType').value,
+      handlingBias: $('#handlingBias').value,
       horsepower: $('#horsepower').value,
+      torque: $('#torque').value,
       weight: $('#weight').value,
       weightDistribution: $('#weightDistribution').value,
       gearCount: $('#gearCount').value,
       redlineRpm: $('#redlineRpm').value,
       idealTopSpeedMph: $('#idealTopSpeedMph').value,
       tireDiameterInches: $('#tireDiameterInches').value,
-      adjustableAero: $('#adjustableAero').checked,
+      frontAero: $('#frontAero').checked,
+      rearAero: $('#rearAero').checked,
     };
   }
 
@@ -165,7 +210,7 @@
         <div>
           <p class="eyebrow">Generated tune</p>
           <h2>${escapeHtml(tune.carName)}</h2>
-          <p>${tune.summary.carClass}-Class ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel} · ${tune.summary.drivetrain}</p>
+          <p>${tune.summary.carClass}-Class ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel} · ${tune.summary.drivetrain} · ${tune.summary.handlingBiasLabel}</p>
         </div>
         <div class="speed-badge">
           <span>${tune.summary.idealTopSpeedMph}</span>
@@ -174,6 +219,14 @@
       </section>
 
       <div class="result-grid">
+        ${renderCard('Build profile', [
+          ['Engine', tune.summary.engineLocationLabel],
+          ['Body', tune.summary.bodyTypeLabel],
+          ['Suspension', tune.summary.suspensionTypeLabel],
+          ['Tires', tune.summary.tireCompoundLabel],
+          ['Power', `${tune.summary.horsepower} hp / ${tune.summary.torque} lb-ft`],
+        ], 'Profile inputs now influence spring, damper, aero, and differential scaling.')}
+
         ${renderCard('Tires', [
           ['Front', `${tune.tires.frontPsi} PSI`],
           ['Rear', `${tune.tires.rearPsi} PSI`],
@@ -224,6 +277,7 @@
           </div>
           <span class="pill">${tune.gearing.gearCount} gears</span>
         </div>
+        ${renderGearGraph(tune)}
         <div class="table-wrap">
           <table>
             <thead>
@@ -232,8 +286,8 @@
             <tbody>${gearRows}</tbody>
           </table>
         </div>
-        <p class="muted">${tune.gearing.shiftNote}</p>
-        <p class="formula">${tune.gearing.formula}</p>
+        <p class="muted">${escapeHtml(tune.gearing.shiftNote)}</p>
+        <p class="formula">${escapeHtml(tune.gearing.formula)}</p>
       </section>
 
       <section class="panel notes-panel">
@@ -243,15 +297,34 @@
     `;
   }
 
+  function renderGearGraph(tune) {
+    const maxSpeed = Math.max(...tune.gearing.redlineSpeeds, tune.summary.idealTopSpeedMph);
+    const bars = tune.gearing.redlineSpeeds.map((speed, index) => {
+      const width = Math.max(5, Math.min(100, (speed / maxSpeed) * 100));
+      return `
+        <div class="gear-bar-row">
+          <span>G${index + 1}</span>
+          <div class="gear-bar-track"><i style="width:${width}%"></i></div>
+          <b>${speed.toFixed(0)} mph</b>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="gear-graph" aria-label="Gear redline speed graph">
+        ${bars}
+      </div>
+    `;
+  }
+
   function renderCard(title, rows, note) {
     return `
       <section class="result-card">
-        <h3>${title}</h3>
+        <h3>${escapeHtml(title)}</h3>
         <dl>
           ${rows.map(([label, value]) => `
             <div>
-              <dt>${label}</dt>
-              <dd>${value}</dd>
+              <dt>${escapeHtml(label)}</dt>
+              <dd>${escapeHtml(value)}</dd>
             </div>
           `).join('')}
         </dl>
@@ -277,20 +350,18 @@
   }
 
   function aeroRows(tune) {
-    if (tune.aero.frontRatio === null) {
-      return [['Status', 'Not adjustable']];
-    }
-    return [
-      ['Front ratio', tune.aero.frontRatio],
-      ['Rear ratio', tune.aero.rearRatio],
-    ];
+    const rows = [];
+    rows.push(['Front aero', tune.aero.frontRatio === null ? 'Not adjustable' : tune.aero.frontRatio]);
+    rows.push(['Rear aero', tune.aero.rearRatio === null ? 'Not adjustable' : tune.aero.rearRatio]);
+    return rows;
   }
 
   function renderCorrection(key) {
     const correction = FT.TuningEngine.CORRECTIONS[key];
     if (!correction) return;
     correctionOutput.innerHTML = `
-      <h3>${correction.label}</h3>
+      <h3>${escapeHtml(correction.label)}</h3>
+      <p class="muted"><strong>Phase:</strong> ${escapeHtml(correction.phase || 'General')}</p>
       <ol>${correction.changes.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ol>
       <p class="muted">Make one change at a time, run the same route again, then judge by lap feel and tire telemetry.</p>
     `;
@@ -307,7 +378,7 @@
       <article class="saved-item">
         <div>
           <strong>${escapeHtml(tune.carName)}</strong>
-          <span>${tune.summary.carClass} · ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel}</span>
+          <span>${tune.summary.carClass} · ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel} · ${tune.summary.handlingBiasLabel || 'Neutral'}</span>
         </div>
         <div class="saved-actions">
           <button type="button" data-load="${tune.id}">Load</button>
@@ -335,21 +406,50 @@
     $('#carClass').value = saved.summary.carClass;
     $('#routeStyle').value = saved.summary.routeStyle || 'balanced';
     $('#drivetrain').value = saved.summary.drivetrain;
+    $('#engineLocation').value = saved.summary.engineLocation || 'front';
+    $('#bodyType').value = saved.summary.bodyType || 'track';
     $('#tireCompound').value = saved.summary.tireCompound || 'sport';
+    $('#suspensionType').value = saved.summary.suspensionType || 'race';
+    $('#handlingBias').value = saved.summary.handlingBias || 'neutral';
     $('#horsepower').value = saved.summary.horsepower;
+    $('#torque').value = saved.summary.torque || Math.round((saved.summary.horsepower || 450) * 0.85);
     $('#weight').value = saved.summary.weight;
     $('#weightDistribution').value = saved.summary.weightDistribution;
     $('#gearCount').value = saved.gearing.gearCount;
     $('#redlineRpm').value = saved.gearing.redlineRpm || $('#redlineRpm').value;
     $('#idealTopSpeedMph').value = saved.summary.idealTopSpeedMph;
     $('#tireDiameterInches').value = saved.gearing.tireDiameterInches || $('#tireDiameterInches').value;
-    $('#adjustableAero').checked = saved.aero.frontRatio !== null;
+    $('#frontAero').checked = saved.summary.frontAero !== undefined ? saved.summary.frontAero : saved.aero.frontRatio !== null;
+    $('#rearAero').checked = saved.summary.rearAero !== undefined ? saved.summary.rearAero : saved.aero.rearRatio !== null;
     state.raceType = saved.summary.raceType;
     state.surface = saved.summary.surface;
+    state.frontWeightTouched = true;
     updateActiveButtons();
     state.currentTune = saved;
     renderTune(saved);
     showToast('Tune loaded.');
+  }
+
+  function formatTuneForClipboard(tune) {
+    const lines = [];
+    lines.push(`${tune.carName} — ${tune.summary.carClass} ${tune.summary.raceLabel} / ${tune.summary.surfaceLabel}`);
+    lines.push(`${tune.summary.drivetrain}, ${tune.summary.engineLocationLabel} engine, ${tune.summary.bodyTypeLabel}, ${tune.summary.handlingBiasLabel}`);
+    lines.push('');
+    lines.push(`Tires: F ${tune.tires.frontPsi} PSI / R ${tune.tires.rearPsi} PSI`);
+    lines.push(`Alignment: camber F ${FT.formatSigned(tune.alignment.frontCamber)}° / R ${FT.formatSigned(tune.alignment.rearCamber)}°, toe F ${FT.formatSigned(tune.alignment.frontToe, 2)}° / R ${FT.formatSigned(tune.alignment.rearToe, 2)}°, caster ${tune.alignment.caster}°`);
+    lines.push(`ARBs: F ${tune.antiRollBars.frontSetting} / R ${tune.antiRollBars.rearSetting}`);
+    lines.push(`Springs: F ${tune.springs.frontRateLbIn} lb/in / R ${tune.springs.rearRateLbIn} lb/in`);
+    lines.push(`Ride height: F ${tune.springs.frontRideHeightIn} in / R ${tune.springs.rearRideHeightIn} in`);
+    lines.push(`Damping: rebound F ${tune.damping.frontReboundSetting} / R ${tune.damping.rearReboundSetting}, bump F ${tune.damping.frontBumpSetting} / R ${tune.damping.rearBumpSetting}`);
+    lines.push(`Brakes: ${tune.brakes.balanceFrontPercent}% front / ${tune.brakes.pressurePercent}% pressure`);
+    const diff = diffRows(tune).map(([label, value]) => `${label} ${value}`).join(', ');
+    lines.push(`Diff: ${diff}`);
+    lines.push(`Aero: front ${tune.aero.frontRatio === null ? 'not adjustable' : tune.aero.frontRatio}, rear ${tune.aero.rearRatio === null ? 'not adjustable' : tune.aero.rearRatio}`);
+    lines.push(`Gearing: final drive ${tune.gearing.finalDrive.toFixed(2)}, ${tune.gearing.gears.map((g, i) => `G${i + 1} ${g.toFixed(2)}`).join(', ')}`);
+    lines.push('');
+    lines.push('Notes:');
+    tune.notes.forEach((note) => lines.push(`- ${note}`));
+    return lines.join('\n');
   }
 
   function showToast(message) {

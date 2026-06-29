@@ -35,19 +35,21 @@
     return FT.clamp(percent, 0.16, 0.42);
   }
 
-  function chooseFinalDrive(classFactor, raceType, surface, gearCount, targetTopOverall) {
+  function chooseFinalDrive(classFactor, raceType, surface, gearCount, targetTopOverall, routeStyle = 'balanced') {
     const surfaceSoftness = (FT.SURFACE_PRESETS[surface] || FT.SURFACE_PRESETS.pavement).softness;
     let finalDrive = 3.25 + classFactor * 0.35 + surfaceSoftness * 0.18;
 
     if (raceType === 'drag') finalDrive -= 0.1;
     if (raceType === 'drift') finalDrive += 0.15;
+    if (routeStyle === 'technical') finalDrive += 0.18;
+    if (routeStyle === 'highspeed') finalDrive -= 0.16;
     if (gearCount >= 8) finalDrive += 0.12;
 
     // Keep top gear in a useful-looking Forza range.
     if (targetTopOverall / finalDrive < 0.55) finalDrive = targetTopOverall / 0.55;
     if (targetTopOverall / finalDrive > 1.1) finalDrive = targetTopOverall / 1.1;
 
-    return FT.round(FT.clamp(finalDrive, 2.2, 4.8), 2);
+    return FT.round(FT.clamp(finalDrive, 2.2, 6.1), 2);
   }
 
   function calculateGearbox(options) {
@@ -55,6 +57,7 @@
     const raceType = options.raceType || 'grip';
     const surface = options.surface || 'pavement';
     const drivetrain = options.drivetrain || 'AWD';
+    const routeStyle = options.routeStyle || 'balanced';
     const gearCount = FT.clamp(parseInt(options.gearCount, 10) || 6, 4, 10);
     const redlineRpm = FT.clamp(parseFloat(options.redlineRpm) || 7000, 4000, 12000);
     const horsepower = FT.clamp(parseFloat(options.horsepower) || 450, 60, 2000);
@@ -71,7 +74,7 @@
     const overallTopRatio = overallRatioForSpeed(redlineRpm, tireCircumferenceInches, idealTopSpeedMph);
     const overallFirstRatio = overallRatioForSpeed(redlineRpm, tireCircumferenceInches, firstGearSpeed);
     const spacingRatio = Math.pow(overallFirstRatio / overallTopRatio, 1 / (gearCount - 1));
-    const finalDrive = chooseFinalDrive(classFactor, raceType, surface, gearCount, overallTopRatio);
+    const finalDrive = chooseFinalDrive(classFactor, raceType, surface, gearCount, overallTopRatio, routeStyle);
 
     const gears = [];
     const redlineSpeeds = [];
@@ -85,7 +88,7 @@
 
     let shiftNote = 'Top gear should approach the target top speed near redline.';
     if (raceType === 'drag') {
-      shiftNote = 'If launch wheelspin is heavy, lengthen 1st before touching power or tire pressure.';
+      shiftNote = 'If launch wheelspin is heavy, lengthen 1st before touching power or tire pressure. Final drive is kept inside a 2.20–6.10 game-style range.';
     }
     if (raceType === 'drift') {
       const mainGear = gearCount <= 6 ? 3 : 4;

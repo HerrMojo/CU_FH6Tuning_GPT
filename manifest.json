@@ -1,7 +1,7 @@
 {
-  "name": "Forza Horizon Tune Lab",
-  "short_name": "Tune Lab",
-  "description": "A Forza Horizon tuning calculator for grip, drift, and drag builds across pavement, mixed, and offroad surfaces.",
+  "name": "FH6GPT Tune Lab",
+  "short_name": "FH6GPT",
+  "description": "A Forza Horizon tuning calculator for grip, drift, and drag builds with phase-based diagnostics.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#09030f",

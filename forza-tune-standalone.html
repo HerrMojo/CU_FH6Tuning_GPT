@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#140921" />
-  <title>Forza Horizon Tune Lab - Standalone</title>
+  <title>FH6GPT Tune Lab</title>
   <style>
 :root {
   color-scheme: dark;
@@ -28,7 +28,7 @@
   --glow-cyan: 0 0 0 1px rgba(0, 240, 255, 0.18), 0 0 18px rgba(0, 240, 255, 0.14), 0 0 36px rgba(0, 240, 255, 0.08);
   --glow-pink: 0 0 0 1px rgba(255, 196, 251, 0.18), 0 0 20px rgba(255, 196, 251, 0.16), 0 0 42px rgba(255, 196, 251, 0.08);
   --radius: 24px;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "OpenDyslexic", "OpenDyslexicAlta", "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -42,6 +42,9 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  letter-spacing: 0.01em;
   min-height: 100vh;
   background:
     radial-gradient(circle at 12% 12%, rgba(0, 240, 255, 0.16), transparent 24rem),
@@ -668,6 +671,94 @@ tr:last-child td { border-bottom: 0; }
   .saved-item { align-items: flex-start; flex-direction: column; }
 }
 
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.guide-grid article {
+  display: grid;
+  gap: 8px;
+  min-height: 108px;
+  padding: 16px;
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(18, 7, 29, 0.78), rgba(81, 21, 140, 0.22));
+}
+
+.guide-grid strong {
+  color: var(--accent);
+  text-shadow: 0 0 14px rgba(44, 255, 5, 0.22);
+}
+
+.guide-grid span {
+  color: var(--soft);
+  line-height: 1.45;
+}
+
+.gear-graph {
+  display: grid;
+  gap: 9px;
+  margin: 2px 0 18px;
+  padding: 14px;
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(6, 2, 10, 0.42);
+}
+
+.gear-bar-row {
+  display: grid;
+  grid-template-columns: 34px minmax(120px, 1fr) 68px;
+  align-items: center;
+  gap: 10px;
+}
+
+.gear-bar-row span {
+  color: var(--cyan);
+  font-weight: 900;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+}
+
+.gear-bar-row b {
+  color: var(--soft);
+  font-size: 0.84rem;
+  text-align: right;
+}
+
+.gear-bar-track {
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 240, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.gear-bar-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2CFF05, #00F0FF, #FFC4FB);
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.18);
+}
+
+@media (max-width: 980px) {
+  .guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+  .gear-bar-row {
+    grid-template-columns: 30px minmax(90px, 1fr) 58px;
+  }
+}
+
   </style>
 </head>
 <body>
@@ -676,13 +767,14 @@ tr:last-child td { border-bottom: 0; }
       <nav class="topbar" aria-label="Main navigation">
         <a href="#setup">Setup</a>
         <a href="#results">Tune</a>
+        <a href="#guide">Guide</a>
         <a href="#fix">Fix</a>
         <a href="#saved">Saved</a>
       </nav>
       <div class="hero-content">
-        <p class="eyebrow">Forza Horizon tuning calculator</p>
+        <p class="eyebrow">FH6GPT tuning calculator</p>
         <h1>Build a tune for grip, drift, or drag.</h1>
-        <p class="hero-copy">Pick a class, surface, drivetrain, and gearbox target. The app generates a starting tune with game-facing suspension settings, diff settings, tire pressures, and gear ratios.</p>
+        <p class="hero-copy">Pick a class, surface, drivetrain, intent, and gearbox target. The app generates a starting tune with game-facing suspension settings, diff settings, tire pressures, and gear ratios.</p>
         <div class="hero-actions">
           <a class="button primary" href="#setup">Start tuning</a>
           <a class="button ghost" href="#fix">Troubleshoot</a>
@@ -697,7 +789,7 @@ tr:last-child td { border-bottom: 0; }
             <p class="eyebrow">Step 1</p>
             <h2>Choose the build personality</h2>
           </div>
-          <span class="pill">Xbox sidekick ready</span>
+          <span class="pill">Second-screen tuner</span>
         </div>
 
         <div class="mode-grid" aria-label="Tune type">
@@ -729,7 +821,7 @@ tr:last-child td { border-bottom: 0; }
         <div class="section-title-row">
           <div>
             <p class="eyebrow">Step 2</p>
-            <h2 id="carSetupTitle">Car and gearbox setup</h2>
+            <h2 id="carSetupTitle">Car, intent, and gearbox setup</h2>
           </div>
         </div>
 
@@ -762,15 +854,50 @@ tr:last-child td { border-bottom: 0; }
           </label>
 
           <label>
+            <span>Engine location</span>
+            <select id="engineLocation">
+              <option value="front" selected>Front</option>
+              <option value="mid">Mid</option>
+              <option value="rear">Rear</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Body type</span>
+            <select id="bodyType">
+              <option value="everyday">Everyday</option>
+              <option value="track" selected>Track / aero</option>
+              <option value="super">Supercar / GT</option>
+              <option value="hyper">Hypercar</option>
+              <option value="truck">Truck / SUV</option>
+            </select>
+          </label>
+
+          <label>
             <span>Tire compound</span>
             <select id="tireCompound">
               <option value="stock">Stock</option>
               <option value="street">Street</option>
               <option value="sport" selected>Sport</option>
               <option value="race">Race</option>
+              <option value="semislick">Semi-slick</option>
+              <option value="slick">Slick</option>
               <option value="drag">Drag</option>
+              <option value="drift">Drift</option>
               <option value="rally">Rally</option>
               <option value="offroad">Offroad</option>
+              <option value="snow">Snow</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Suspension</span>
+            <select id="suspensionType">
+              <option value="street">Street / stock</option>
+              <option value="sport">Sport</option>
+              <option value="race" selected>Race</option>
+              <option value="rally">Rally</option>
+              <option value="drift">Drift</option>
             </select>
           </label>
 
@@ -784,12 +911,26 @@ tr:last-child td { border-bottom: 0; }
           </label>
 
           <label>
+            <span>Handling bias</span>
+            <select id="handlingBias">
+              <option value="stable">Stable / safe</option>
+              <option value="neutral" selected>Neutral</option>
+              <option value="rotation">More rotation</option>
+            </select>
+          </label>
+
+          <label>
             <span>Horsepower</span>
             <input id="horsepower" type="number" value="520" min="60" max="2000" />
           </label>
 
           <label>
-            <span>Weight</span>
+            <span>Torque, lb-ft</span>
+            <input id="torque" type="number" value="450" min="40" max="1800" />
+          </label>
+
+          <label>
+            <span>Weight, lb</span>
             <input id="weight" type="number" value="3200" min="1200" max="6500" />
           </label>
 
@@ -819,13 +960,19 @@ tr:last-child td { border-bottom: 0; }
           </label>
 
           <label class="checkbox-label">
-            <input id="adjustableAero" type="checkbox" checked />
-            <span>Adjustable aero installed</span>
+            <input id="frontAero" type="checkbox" checked />
+            <span>Front aero adjustable</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input id="rearAero" type="checkbox" checked />
+            <span>Rear aero adjustable</span>
           </label>
         </form>
 
         <div class="action-row">
           <button type="button" class="button primary" id="generateBtn">Generate tune</button>
+          <button type="button" class="button ghost" id="copyBtn">Copy tune</button>
           <button type="button" class="button ghost" id="saveBtn">Save tune</button>
           <button type="button" class="button ghost" id="exportBtn">Export JSON</button>
           <button type="button" class="button quiet" id="resetBtn">Reset</button>
@@ -836,6 +983,23 @@ tr:last-child td { border-bottom: 0; }
         <div id="tuneOutput"></div>
       </section>
 
+      <section class="panel" id="guide">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Method</p>
+            <h2>Phase-based tuning workflow</h2>
+          </div>
+          <span class="pill">Change one thing, retest</span>
+        </div>
+        <div class="guide-grid">
+          <article><strong>Braking</strong><span>Brake balance, front bump, weight transfer.</span></article>
+          <article><strong>Turn-in</strong><span>Camber, caster, front rebound, decel diff, front ARB.</span></article>
+          <article><strong>Mid-corner</strong><span>ARBs, springs, ride height, aero balance.</span></article>
+          <article><strong>Exit</strong><span>Accel diff, rear springs/ARB, rear damping, rear toe.</span></article>
+        </div>
+        <p class="muted">The calculator gives a baseline. Drive one test route, pick the symptom that matches the phase, make one small change, then retest.</p>
+      </section>
+
       <section class="panel" id="fix">
         <div class="section-title-row">
           <div>
@@ -844,12 +1008,21 @@ tr:last-child td { border-bottom: 0; }
           </div>
         </div>
         <div class="fix-grid">
-          <button type="button" class="fix-button" data-fix="understeerEntry">Understeers on entry</button>
-          <button type="button" class="fix-button" data-fix="understeerThrottle">Understeers on throttle</button>
-          <button type="button" class="fix-button" data-fix="oversteerEntry">Oversteers on entry</button>
+          <button type="button" class="fix-button" data-fix="understeerEntry">Entry understeer</button>
+          <button type="button" class="fix-button" data-fix="understeerMid">Mid-corner understeer</button>
+          <button type="button" class="fix-button" data-fix="understeerThrottle">Exit understeer</button>
+          <button type="button" class="fix-button" data-fix="understeerHighSpeed">High-speed understeer</button>
+          <button type="button" class="fix-button" data-fix="oversteerEntry">Entry oversteer</button>
+          <button type="button" class="fix-button" data-fix="oversteerMid">Mid-corner oversteer</button>
           <button type="button" class="fix-button" data-fix="powerOversteer">Power oversteer</button>
+          <button type="button" class="fix-button" data-fix="snapOversteer">Snap oversteer</button>
+          <button type="button" class="fix-button" data-fix="noseDive">Nose dives braking</button>
+          <button type="button" class="fix-button" data-fix="bouncyFloaty">Bouncy / floaty</button>
+          <button type="button" class="fix-button" data-fix="skittersBumps">Skitters over bumps</button>
+          <button type="button" class="fix-button" data-fix="bottomsOut">Bottoms out</button>
+          <button type="button" class="fix-button" data-fix="wheelspinExit">Wheelspin on exit</button>
           <button type="button" class="fix-button" data-fix="wheelspinLaunch">Wheelspin on launch</button>
-          <button type="button" class="fix-button" data-fix="bouncingOffroad">Bouncing offroad</button>
+          <button type="button" class="fix-button" data-fix="lazyChicanes">Lazy in chicanes</button>
           <button type="button" class="fix-button" data-fix="limiterEarly">Hits limiter too early</button>
           <button type="button" class="fix-button" data-fix="neverTopGear">Never reaches top gear</button>
         </div>
@@ -873,8 +1046,8 @@ tr:last-child td { border-bottom: 0; }
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<script>
-/* Forza Tune App - shared presets and utility helpers */
+  <script>
+/* FH6GPT Tune Lab - shared presets and utility helpers */
 (function () {
   const FT = (window.ForzaTune = window.ForzaTune || {});
 
@@ -944,6 +1117,52 @@ tr:last-child td { border-bottom: 0; }
     },
   };
 
+  FT.HANDLING_BIAS = {
+    stable: {
+      label: 'Stable / safe',
+      frontGripShift: 0.04,
+      rearGripShift: 0.1,
+      rotation: -0.08,
+      note: 'Biases the baseline toward rear stability and calmer throttle exits.',
+    },
+    neutral: {
+      label: 'Neutral',
+      frontGripShift: 0,
+      rearGripShift: 0,
+      rotation: 0,
+      note: 'Keeps front and rear balance centered.',
+    },
+    rotation: {
+      label: 'More rotation',
+      frontGripShift: 0.08,
+      rearGripShift: -0.06,
+      rotation: 0.1,
+      note: 'Biases the baseline toward sharper turn-in and more rotation.',
+    },
+  };
+
+  FT.ENGINE_LOCATION_DEFAULTS = {
+    front: { label: 'Front', frontWeight: 55, springBias: 0.05 },
+    mid: { label: 'Mid', frontWeight: 48, springBias: 0 },
+    rear: { label: 'Rear', frontWeight: 43, springBias: -0.06 },
+  };
+
+  FT.BODY_TYPE_PRESETS = {
+    everyday: { label: 'Everyday', stiffness: -0.03, height: 0.1, aero: 0 },
+    track: { label: 'Track / aero', stiffness: 0.03, height: -0.05, aero: 0.06 },
+    super: { label: 'Supercar / GT', stiffness: 0.07, height: -0.18, aero: 0.08 },
+    hyper: { label: 'Hypercar', stiffness: 0.11, height: -0.28, aero: 0.12 },
+    truck: { label: 'Truck / SUV', stiffness: -0.1, height: 0.55, aero: -0.05 },
+  };
+
+  FT.SUSPENSION_TYPES = {
+    street: { label: 'Street / stock', stiffness: -0.12, damping: -0.08, height: 0.18 },
+    sport: { label: 'Sport', stiffness: -0.04, damping: -0.03, height: 0.06 },
+    race: { label: 'Race', stiffness: 0.06, damping: 0.05, height: -0.08 },
+    rally: { label: 'Rally', stiffness: -0.13, damping: -0.13, height: 0.48 },
+    drift: { label: 'Drift', stiffness: 0.02, damping: -0.04, height: 0.08 },
+  };
+
   FT.DEFAULT_TOP_SPEEDS = {
     D: { grip: { pavement: 110, mixed: 100, offroad: 90 }, drag: 125, drift: 90 },
     C: { grip: { pavement: 130, mixed: 115, offroad: 100 }, drag: 145, drift: 105 },
@@ -965,9 +1184,13 @@ tr:last-child td { border-bottom: 0; }
     street: { grip: 0.95, pressure: 0.4, label: 'Street' },
     sport: { grip: 1, pressure: 0, label: 'Sport' },
     race: { grip: 1.06, pressure: -0.3, label: 'Race' },
+    semislick: { grip: 1.08, pressure: -0.5, label: 'Semi-slick' },
+    slick: { grip: 1.1, pressure: -0.7, label: 'Slick' },
     drag: { grip: 1.04, pressure: -1.2, label: 'Drag' },
+    drift: { grip: 0.97, pressure: 1.0, label: 'Drift' },
     rally: { grip: 0.98, pressure: -2.3, label: 'Rally' },
     offroad: { grip: 0.96, pressure: -3.2, label: 'Offroad' },
+    snow: { grip: 0.92, pressure: -3.8, label: 'Snow' },
   };
 
   FT.DRIVETRAIN_PRESETS = {
@@ -1011,8 +1234,8 @@ tr:last-child td { border-bottom: 0; }
   };
 })();
 
-</script>
-<script>
+  </script>
+  <script>
 /* Forza Tune App - gearbox calculations */
 (function () {
   const FT = (window.ForzaTune = window.ForzaTune || {});
@@ -1050,19 +1273,21 @@ tr:last-child td { border-bottom: 0; }
     return FT.clamp(percent, 0.16, 0.42);
   }
 
-  function chooseFinalDrive(classFactor, raceType, surface, gearCount, targetTopOverall) {
+  function chooseFinalDrive(classFactor, raceType, surface, gearCount, targetTopOverall, routeStyle = 'balanced') {
     const surfaceSoftness = (FT.SURFACE_PRESETS[surface] || FT.SURFACE_PRESETS.pavement).softness;
     let finalDrive = 3.25 + classFactor * 0.35 + surfaceSoftness * 0.18;
 
     if (raceType === 'drag') finalDrive -= 0.1;
     if (raceType === 'drift') finalDrive += 0.15;
+    if (routeStyle === 'technical') finalDrive += 0.18;
+    if (routeStyle === 'highspeed') finalDrive -= 0.16;
     if (gearCount >= 8) finalDrive += 0.12;
 
     // Keep top gear in a useful-looking Forza range.
     if (targetTopOverall / finalDrive < 0.55) finalDrive = targetTopOverall / 0.55;
     if (targetTopOverall / finalDrive > 1.1) finalDrive = targetTopOverall / 1.1;
 
-    return FT.round(FT.clamp(finalDrive, 2.2, 4.8), 2);
+    return FT.round(FT.clamp(finalDrive, 2.2, 6.1), 2);
   }
 
   function calculateGearbox(options) {
@@ -1070,6 +1295,7 @@ tr:last-child td { border-bottom: 0; }
     const raceType = options.raceType || 'grip';
     const surface = options.surface || 'pavement';
     const drivetrain = options.drivetrain || 'AWD';
+    const routeStyle = options.routeStyle || 'balanced';
     const gearCount = FT.clamp(parseInt(options.gearCount, 10) || 6, 4, 10);
     const redlineRpm = FT.clamp(parseFloat(options.redlineRpm) || 7000, 4000, 12000);
     const horsepower = FT.clamp(parseFloat(options.horsepower) || 450, 60, 2000);
@@ -1086,7 +1312,7 @@ tr:last-child td { border-bottom: 0; }
     const overallTopRatio = overallRatioForSpeed(redlineRpm, tireCircumferenceInches, idealTopSpeedMph);
     const overallFirstRatio = overallRatioForSpeed(redlineRpm, tireCircumferenceInches, firstGearSpeed);
     const spacingRatio = Math.pow(overallFirstRatio / overallTopRatio, 1 / (gearCount - 1));
-    const finalDrive = chooseFinalDrive(classFactor, raceType, surface, gearCount, overallTopRatio);
+    const finalDrive = chooseFinalDrive(classFactor, raceType, surface, gearCount, overallTopRatio, routeStyle);
 
     const gears = [];
     const redlineSpeeds = [];
@@ -1100,7 +1326,7 @@ tr:last-child td { border-bottom: 0; }
 
     let shiftNote = 'Top gear should approach the target top speed near redline.';
     if (raceType === 'drag') {
-      shiftNote = 'If launch wheelspin is heavy, lengthen 1st before touching power or tire pressure.';
+      shiftNote = 'If launch wheelspin is heavy, lengthen 1st before touching power or tire pressure. Final drive is kept inside a 2.20–6.10 game-style range.';
     }
     if (raceType === 'drift') {
       const mainGear = gearCount <= 6 ? 3 : 4;
@@ -1135,9 +1361,9 @@ tr:last-child td { border-bottom: 0; }
   };
 })();
 
-</script>
-<script>
-/* Forza Tune App - tuning calculations */
+  </script>
+  <script>
+/* FH6GPT Tune Lab - tuning calculations */
 (function () {
   const FT = (window.ForzaTune = window.ForzaTune || {});
 
@@ -1150,7 +1376,7 @@ tr:last-child td { border-bottom: 0; }
   }
 
   function buildTires(ctx) {
-    const { raceType, surfacePreset, compoundPreset, drivetrain, weightDistribution, classFactor, horsepower } = ctx;
+    const { raceType, surfacePreset, compoundPreset, drivetrain, weightDistribution, classFactor, horsepower, handlingPreset } = ctx;
     let front = 28.5;
     let rear = 28.0;
 
@@ -1186,6 +1412,10 @@ tr:last-child td { border-bottom: 0; }
       }
     }
 
+    // Bias nudges contact patch toward the end you want to protect or sharpen.
+    front -= handlingPreset.frontGripShift * 3.0;
+    rear -= handlingPreset.rearGripShift * 2.2;
+
     // More nose weight usually wants a little less front pressure for contact patch.
     front -= FT.clamp((weightDistribution - 52) / 25, -0.6, 0.9);
     rear += FT.clamp((weightDistribution - 52) / 30, -0.6, 0.6);
@@ -1194,13 +1424,13 @@ tr:last-child td { border-bottom: 0; }
       frontPsi: FT.round(FT.clamp(front, 16, 40), 1),
       rearPsi: FT.round(FT.clamp(rear, 16, 40), 1),
       note: raceType === 'drag'
-        ? 'Drag setup uses high front pressure and low drive-tire pressure for launch bite.'
-        : 'Check telemetry after a run; warm tire pressure is the real judge.'
+        ? 'Drag setup uses high non-drive pressure and low drive-tire pressure for launch bite.'
+        : 'Cold PSI is a starting point. Warm telemetry should decide the final nudge.'
     };
   }
 
   function buildAlignment(ctx) {
-    const { raceType, surfacePreset, classFactor } = ctx;
+    const { raceType, surfacePreset, classFactor, handlingPreset } = ctx;
     let frontCamber;
     let rearCamber;
     let frontToe = 0;
@@ -1210,6 +1440,10 @@ tr:last-child td { border-bottom: 0; }
     if (raceType === 'grip') {
       frontCamber = -FT.lerp(1.1, 2.35, classFactor) + surfacePreset.softness * 0.75;
       rearCamber = -FT.lerp(0.75, 1.65, classFactor) + surfacePreset.softness * 0.55;
+      frontCamber -= handlingPreset.frontGripShift * 1.2;
+      rearCamber -= Math.max(0, handlingPreset.rearGripShift) * 0.8;
+      if (handlingPreset.rotation > 0) frontToe = 0.05;
+      if (handlingPreset.rotation < 0) rearToe = 0.05;
     } else if (raceType === 'drift') {
       frontCamber = -FT.lerp(3.0, 4.5, classFactor) + surfacePreset.softness * 1.4;
       rearCamber = -FT.lerp(0.45, 1.2, classFactor) + surfacePreset.softness * 0.55;
@@ -1237,10 +1471,10 @@ tr:last-child td { border-bottom: 0; }
   }
 
   function buildSuspension(ctx) {
-    const { raceType, surfacePreset, classFactor, weightDistribution, drivetrain, weight } = ctx;
+    const { raceType, surfacePreset, classFactor, weightDistribution, drivetrain, weight, bodyPreset, suspensionPreset, handlingPreset } = ctx;
     const frontWeightBias = FT.clamp((weightDistribution - 50) / 25, -0.3, 0.5);
-    let springBase = FT.lerp(0.33, 0.72, classFactor) - surfacePreset.softness * 0.25;
-    let arbBase = FT.lerp(0.38, 0.72, classFactor) - surfacePreset.softness * 0.18;
+    let springBase = FT.lerp(0.33, 0.72, classFactor) - surfacePreset.softness * 0.25 + bodyPreset.stiffness + suspensionPreset.stiffness;
+    let arbBase = FT.lerp(0.38, 0.72, classFactor) - surfacePreset.softness * 0.18 + bodyPreset.stiffness * 0.75 + suspensionPreset.stiffness * 0.8;
 
     if (raceType === 'drag') {
       springBase -= 0.16;
@@ -1255,6 +1489,17 @@ tr:last-child td { border-bottom: 0; }
     let rearSpring = springBase - frontWeightBias * 0.2;
     let frontArb = arbBase + frontWeightBias * 0.25;
     let rearArb = arbBase - frontWeightBias * 0.15;
+
+    // Handling bias changes balance without hiding it from the user.
+    if (handlingPreset.rotation > 0) {
+      frontArb -= 0.04;
+      rearArb += 0.08;
+      rearSpring += 0.04;
+    } else if (handlingPreset.rotation < 0) {
+      frontArb += 0.02;
+      rearArb -= 0.08;
+      rearSpring -= 0.04;
+    }
 
     if (raceType === 'grip') {
       if (drivetrain === 'FWD') rearArb += 0.1;
@@ -1303,18 +1548,29 @@ tr:last-child td { border-bottom: 0; }
       }
     }
 
-    const reboundBase = FT.clamp(springBase + 0.16, 0.18, 0.9);
-    const bumpBase = FT.clamp(reboundBase * 0.62, 0.12, 0.65);
+    const reboundBase = FT.clamp(springBase + 0.16 + suspensionPreset.damping, 0.18, 0.9);
     const frontReboundRatio = FT.clamp(reboundBase + frontWeightBias * 0.2, 0.15, 0.95);
-    const rearReboundRatio = FT.clamp(reboundBase - frontWeightBias * 0.1, 0.15, 0.95);
-    const frontBumpRatio = FT.clamp(bumpBase + frontWeightBias * 0.08, 0.1, 0.7);
-    const rearBumpRatio = FT.clamp(bumpBase - frontWeightBias * 0.04, 0.1, 0.7);
+    const rearReboundRatio = FT.clamp(reboundBase - frontWeightBias * 0.1 + (rearSpringRatio - frontSpringRatio) * 0.22, 0.15, 0.95);
 
     function dampingSetting(ratio) {
       return FT.round(FT.clamp(1 + ratio * 19, 1, 20), 1);
     }
 
-    const lowRideHeightIn = FT.lerp(5.4, 3.7, classFactor) + surfacePreset.softness * 0.6;
+    const bumpFraction = raceType === 'drag'
+      ? 0.5
+      : surfacePreset.softness > 0.7 || ctx.suspensionType === 'rally'
+        ? 0.32
+        : 0.4;
+
+    const frontReboundSetting = dampingSetting(frontReboundRatio);
+    const rearReboundSetting = dampingSetting(rearReboundRatio);
+    const frontBumpSetting = FT.round(FT.clamp(frontReboundSetting * bumpFraction, 1, 20), 1);
+    const rearBumpSetting = FT.round(FT.clamp(rearReboundSetting * bumpFraction, 1, 20), 1);
+
+    const frontBumpRatio = (frontBumpSetting - 1) / 19;
+    const rearBumpRatio = (rearBumpSetting - 1) / 19;
+
+    const lowRideHeightIn = FT.lerp(5.4, 3.7, classFactor) + surfacePreset.softness * 0.6 + bodyPreset.height + suspensionPreset.height;
     const rideHeightRangeIn = FT.lerp(2.1, 4.4, surfacePreset.softness);
     let baseRideHeightIn = lowRideHeightIn + surfacePreset.rideHeight * rideHeightRangeIn;
 
@@ -1327,6 +1583,14 @@ tr:last-child td { border-bottom: 0; }
     if (raceType === 'grip') {
       frontRideHeightIn -= surfacePreset.softness < 0.4 ? 0.1 : 0;
       rearRideHeightIn += surfacePreset.softness < 0.4 ? 0.1 : 0;
+    }
+
+    if (handlingPreset.rotation > 0 && raceType === 'grip') {
+      frontRideHeightIn -= 0.05;
+      rearRideHeightIn += 0.08;
+    }
+    if (handlingPreset.rotation < 0 && raceType === 'grip') {
+      rearRideHeightIn -= 0.08;
     }
 
     if (raceType === 'drift') {
@@ -1369,15 +1633,16 @@ tr:last-child td { border-bottom: 0; }
         rideHeightLabel: ratioLabel(surfacePreset.rideHeight),
       },
       damping: {
-        frontReboundSetting: dampingSetting(frontReboundRatio),
-        rearReboundSetting: dampingSetting(rearReboundRatio),
-        frontBumpSetting: dampingSetting(frontBumpRatio),
-        rearBumpSetting: dampingSetting(rearBumpRatio),
+        frontReboundSetting,
+        rearReboundSetting,
+        frontBumpSetting,
+        rearBumpSetting,
         frontReboundRatio: FT.round(frontReboundRatio, 2),
         rearReboundRatio: FT.round(rearReboundRatio, 2),
         frontBumpRatio: FT.round(frontBumpRatio, 2),
         rearBumpRatio: FT.round(rearBumpRatio, 2),
-        note: "Damping is shown on Forza's 1–20 scale. Keep bump lower than rebound so the car absorbs curbs and dirt cuts instead of pogo-sticking."
+        bumpToReboundPercent: Math.round(bumpFraction * 100),
+        note: `Damping is shown on Forza's 1–20 scale. Bump is targeted around ${Math.round(bumpFraction * 100)}% of rebound so compression absorbs bumps while rebound controls the return.`
       },
       note: raceType === 'drag'
         ? 'Drag suspension softens the launch end and stiffens the drive end to help weight transfer. Anti-roll bars, ride height, springs, and damping are shown in game-facing units.'
@@ -1386,8 +1651,9 @@ tr:last-child td { border-bottom: 0; }
   }
 
   function buildDiff(ctx) {
-    const { raceType, surfacePreset, drivetrain, classFactor, horsepower } = ctx;
+    const { raceType, surfacePreset, drivetrain, classFactor, horsepower, torque, handlingPreset } = ctx;
     const powerAdd = FT.clamp((horsepower - 400) / 1200, 0, 0.18);
+    const torqueAdd = FT.clamp((torque - 350) / 1000, -0.05, 0.2);
     let frontAccel = 0;
     let frontDecel = 0;
     let rearAccel = 0;
@@ -1396,35 +1662,35 @@ tr:last-child td { border-bottom: 0; }
 
     if (drivetrain === 'FWD') {
       if (raceType === 'drag') {
-        frontAccel = 88;
+        frontAccel = 88 + torqueAdd * 18;
         frontDecel = 8;
       } else if (raceType === 'drift') {
         frontAccel = 75;
         frontDecel = 25;
       } else {
-        frontAccel = 45 + classFactor * 18 - surfacePreset.softness * 10;
+        frontAccel = 45 + classFactor * 18 - surfacePreset.softness * 10 - handlingPreset.rotation * 18;
         frontDecel = 8 + classFactor * 10;
       }
     }
 
     if (drivetrain === 'RWD') {
       if (raceType === 'drag') {
-        rearAccel = 96;
+        rearAccel = 96 + torqueAdd * 10;
         rearDecel = 8;
       } else if (raceType === 'drift') {
         rearAccel = 96;
         rearDecel = 78;
       } else {
-        rearAccel = 50 + classFactor * 22 + powerAdd * 30 - surfacePreset.softness * 8;
-        rearDecel = 12 + classFactor * 13 - surfacePreset.softness * 5;
+        rearAccel = 50 + classFactor * 22 + powerAdd * 30 - surfacePreset.softness * 8 - torqueAdd * 14 + handlingPreset.rotation * 10;
+        rearDecel = 12 + classFactor * 13 - surfacePreset.softness * 5 - handlingPreset.rotation * 10;
       }
     }
 
     if (drivetrain === 'AWD') {
       if (raceType === 'drag') {
-        frontAccel = 35;
+        frontAccel = 35 + torqueAdd * 8;
         frontDecel = 5;
-        rearAccel = 92;
+        rearAccel = 92 + torqueAdd * 10;
         rearDecel = 8;
         centerBalanceRear = 62 + classFactor * 8;
       } else if (raceType === 'drift') {
@@ -1434,11 +1700,11 @@ tr:last-child td { border-bottom: 0; }
         rearDecel = 75;
         centerBalanceRear = 82 + classFactor * 8;
       } else {
-        frontAccel = 18 + classFactor * 8;
+        frontAccel = 18 + classFactor * 8 - handlingPreset.rotation * 10;
         frontDecel = 4 + classFactor * 3;
-        rearAccel = 55 + classFactor * 16 - surfacePreset.softness * 7;
-        rearDecel = 14 + classFactor * 10 - surfacePreset.softness * 4;
-        centerBalanceRear = 60 + classFactor * 8 - surfacePreset.softness * 4;
+        rearAccel = 55 + classFactor * 16 - surfacePreset.softness * 7 - torqueAdd * 8 + handlingPreset.rotation * 8;
+        rearDecel = 14 + classFactor * 10 - surfacePreset.softness * 4 - handlingPreset.rotation * 8;
+        centerBalanceRear = 60 + classFactor * 8 - surfacePreset.softness * 4 + handlingPreset.rotation * 18;
       }
     }
 
@@ -1452,30 +1718,32 @@ tr:last-child td { border-bottom: 0; }
         ? 'A locked rear diff makes the slide predictable. AWD drift gets a rear-biased center split.'
         : raceType === 'drag'
           ? 'High accel lock helps both drive tires bite under launch and shift shock.'
-          : 'Moderate accel lock gives drive without making corner exit feel welded shut.'
+          : 'Torque, drivetrain, and handling bias nudge accel lock so exits do not feel welded shut.'
     };
   }
 
   function buildAeroAndBrakes(ctx) {
-    const { raceType, surfacePreset, classFactor, weightDistribution, adjustableAero } = ctx;
-    let frontAero = null;
-    let rearAero = null;
+    const { raceType, surfacePreset, classFactor, weightDistribution, frontAero, rearAero, bodyPreset, handlingPreset } = ctx;
+    let frontRatio = null;
+    let rearRatio = null;
 
-    if (adjustableAero) {
-      if (raceType === 'drag') {
-        frontAero = 0.05;
-        rearAero = 0.08;
-      } else if (raceType === 'drift') {
-        frontAero = 0.18 + classFactor * 0.1;
-        rearAero = 0.12 + classFactor * 0.08;
-      } else {
-        frontAero = 0.38 + classFactor * 0.23 - surfacePreset.softness * 0.08;
-        rearAero = 0.44 + classFactor * 0.25 - surfacePreset.softness * 0.08;
-      }
+    if (frontAero) {
+      if (raceType === 'drag') frontRatio = 0.05;
+      else if (raceType === 'drift') frontRatio = 0.18 + classFactor * 0.1;
+      else frontRatio = 0.38 + classFactor * 0.23 - surfacePreset.softness * 0.08 + bodyPreset.aero + handlingPreset.frontGripShift * 0.9;
+    }
+
+    if (rearAero) {
+      if (raceType === 'drag') rearRatio = 0.08;
+      else if (raceType === 'drift') rearRatio = 0.12 + classFactor * 0.08;
+      else rearRatio = 0.44 + classFactor * 0.25 - surfacePreset.softness * 0.08 + bodyPreset.aero + handlingPreset.rearGripShift * 0.9;
     }
 
     let brakeBalanceFront = 50 + FT.clamp((weightDistribution - 50) * 0.22, -2.5, 3.5);
     let brakePressure = 100 + classFactor * 12;
+
+    if (handlingPreset.rotation > 0) brakeBalanceFront -= 0.8;
+    if (handlingPreset.rotation < 0) brakeBalanceFront += 0.8;
 
     if (raceType === 'drag') {
       brakeBalanceFront = 48;
@@ -1485,20 +1753,22 @@ tr:last-child td { border-bottom: 0; }
       brakePressure -= surfacePreset.softness * 8;
     }
 
+    const noAeroNote = !frontAero && !rearAero
+      ? 'Aero marked non-adjustable, so no wing slider recommendation is shown.'
+      : !frontAero
+        ? 'Front aero is missing, so use mechanical front grip if high-speed understeer appears.'
+        : !rearAero
+          ? 'Rear aero is missing, so use mechanical rear grip if high-speed oversteer appears.'
+          : raceType === 'drag' ? 'Minimize aero for straight-line speed.' : 'Use aero balance to fix only high-speed problems.';
+
     return {
-      aero: adjustableAero
-        ? {
-            frontRatio: FT.round(FT.clamp(frontAero, 0, 1), 2),
-            rearRatio: FT.round(FT.clamp(rearAero, 0, 1), 2),
-            note: raceType === 'drag' ? 'Minimize aero for straight-line speed.' : 'Use more rear aero if high-speed exits feel nervous.'
-          }
-        : {
-            frontRatio: null,
-            rearRatio: null,
-            note: 'Aero marked non-adjustable, so no wing slider recommendation is shown.'
-          },
+      aero: {
+        frontRatio: frontRatio === null ? null : FT.round(FT.clamp(frontRatio, 0, 1), 2),
+        rearRatio: rearRatio === null ? null : FT.round(FT.clamp(rearRatio, 0, 1), 2),
+        note: noAeroNote,
+      },
       brakes: {
-        balanceFrontPercent: FT.round(FT.clamp(brakeBalanceFront, 45, 56), 1),
+        balanceFrontPercent: FT.round(FT.clamp(brakeBalanceFront, 45, 58), 1),
         pressurePercent: Math.round(FT.clamp(brakePressure, 75, 120)),
         note: surfacePreset.softness > 0.5 ? 'Lower brake pressure helps prevent dirt-lockups.' : 'Higher classes can use more brake pressure if ABS/trigger control is clean.'
       }
@@ -1508,8 +1778,10 @@ tr:last-child td { border-bottom: 0; }
   function buildNotes(ctx, tune) {
     const notes = [];
     notes.push(`${ctx.carClass}-class ${ctx.racePreset.label.toLowerCase()} tune for ${ctx.surfacePreset.label.toLowerCase()}.`);
+    notes.push(`${ctx.bodyPreset.label} body, ${ctx.suspensionPreset.label.toLowerCase()} suspension, ${ctx.handlingPreset.label.toLowerCase()} handling bias.`);
     notes.push(ctx.surfacePreset.note);
     notes.push(ctx.racePreset.note);
+    notes.push('Workflow: finish the full baseline first, drive one shakedown route, diagnose by corner phase, change one setting, then retest.');
 
     if (ctx.raceType === 'drag' && ctx.drivetrain === 'FWD') {
       notes.push('FWD drag builds need front tire pressure treated like rear pressure on RWD/AWD cars because the front axle launches the car.');
@@ -1517,6 +1789,10 @@ tr:last-child td { border-bottom: 0; }
 
     if (ctx.surface !== 'pavement' && ctx.raceType === 'drift') {
       notes.push('Offroad/mixed drift should avoid overly stiff suspension or the slide will chatter instead of flowing.');
+    }
+
+    if (!ctx.frontAero || !ctx.rearAero) {
+      notes.push('One aero axis is missing, so use springs, ARBs, ride height, and diff settings to compensate for high-speed balance.');
     }
 
     if (tune.gearing.redlineSpeeds[tune.gearing.redlineSpeeds.length - 1] < ctx.idealTopSpeedMph - 3) {
@@ -1536,15 +1812,21 @@ tr:last-child td { border-bottom: 0; }
     const surfacePreset = FT.SURFACE_PRESETS[surface] || FT.SURFACE_PRESETS.pavement;
     const racePreset = FT.RACE_PRESETS[raceType] || FT.RACE_PRESETS.grip;
     const compoundPreset = FT.TIRE_COMPOUND_MODIFIERS[options.tireCompound || 'sport'] || FT.TIRE_COMPOUND_MODIFIERS.sport;
+    const handlingPreset = FT.HANDLING_BIAS[options.handlingBias || 'neutral'] || FT.HANDLING_BIAS.neutral;
+    const enginePreset = FT.ENGINE_LOCATION_DEFAULTS[options.engineLocation || 'front'] || FT.ENGINE_LOCATION_DEFAULTS.front;
+    const bodyPreset = FT.BODY_TYPE_PRESETS[options.bodyType || 'track'] || FT.BODY_TYPE_PRESETS.track;
+    const suspensionPreset = FT.SUSPENSION_TYPES[options.suspensionType || 'race'] || FT.SUSPENSION_TYPES.race;
     const horsepower = FT.clamp(parseFloat(options.horsepower) || 450, 60, 2000);
+    const torque = FT.clamp(parseFloat(options.torque) || Math.round(horsepower * 0.85), 40, 1800);
     const weight = FT.clamp(parseFloat(options.weight) || 3200, 1200, 6500);
-    const weightDistribution = FT.clamp(parseFloat(options.weightDistribution) || 52, 35, 70);
+    const weightDistribution = FT.clamp(parseFloat(options.weightDistribution) || enginePreset.frontWeight, 35, 70);
     const idealTopSpeedMph = FT.clamp(
       parseFloat(options.idealTopSpeedMph) || FT.getDefaultTopSpeed(carClass, raceType, surface, routeStyle),
       60,
       360
     );
-    const adjustableAero = !!options.adjustableAero;
+    const frontAero = options.frontAero !== undefined ? !!options.frontAero : !!options.adjustableAero;
+    const rearAero = options.rearAero !== undefined ? !!options.rearAero : !!options.adjustableAero;
 
     const ctx = {
       carClass,
@@ -1556,11 +1838,18 @@ tr:last-child td { border-bottom: 0; }
       surfacePreset,
       racePreset,
       compoundPreset,
+      handlingPreset,
+      enginePreset,
+      bodyPreset,
+      suspensionPreset,
+      suspensionType: options.suspensionType || 'race',
       horsepower,
+      torque,
       weight,
       weightDistribution,
       idealTopSpeedMph,
-      adjustableAero,
+      frontAero,
+      rearAero,
     };
 
     const tires = buildTires(ctx);
@@ -1573,6 +1862,7 @@ tr:last-child td { border-bottom: 0; }
       carClass,
       raceType,
       surface,
+      routeStyle,
       drivetrain,
       horsepower,
       idealTopSpeedMph,
@@ -1590,12 +1880,24 @@ tr:last-child td { border-bottom: 0; }
         surfaceLabel: surfacePreset.label,
         routeStyle,
         drivetrain,
+        engineLocation: options.engineLocation || 'front',
+        engineLocationLabel: enginePreset.label,
+        bodyType: options.bodyType || 'track',
+        bodyTypeLabel: bodyPreset.label,
         tireCompound: options.tireCompound || 'sport',
+        tireCompoundLabel: compoundPreset.label,
+        suspensionType: options.suspensionType || 'race',
+        suspensionTypeLabel: suspensionPreset.label,
+        handlingBias: options.handlingBias || 'neutral',
+        handlingBiasLabel: handlingPreset.label,
         horsepower,
+        torque,
         weight,
         weightDistribution,
         classFactor: FT.round(classFactor, 2),
         idealTopSpeedMph: FT.round(idealTopSpeedMph, 0),
+        frontAero,
+        rearAero,
       },
       tires,
       alignment,
@@ -1616,43 +1918,146 @@ tr:last-child td { border-bottom: 0; }
 
   const CORRECTIONS = {
     understeerEntry: {
-      label: 'Understeers on entry',
+      label: 'Entry understeer',
+      phase: 'Turn-in / braking',
       changes: [
         'Lower front anti-roll bar by 2 to 7 points.',
-        'Add 0.2° to 0.4° more negative front camber.',
+        'Soften front springs by 3% to 8%.',
+        'Soften front rebound by 0.5 to 1.5.',
         'Move brake balance 1% rearward if the nose washes while braking.',
-        'For AWD, reduce front decel diff slightly.'
+        'For AWD/RWD, reduce rear diff decel slightly.'
+      ],
+    },
+    understeerMid: {
+      label: 'Mid-corner understeer',
+      phase: 'Steady cornering',
+      changes: [
+        'Lower front anti-roll bar by 2 to 7 points.',
+        'Lower front tire pressure 0.3 to 0.8 PSI.',
+        'Add 0.2° to 0.4° more negative front camber.',
+        'Increase front aero if the push happens only at high speed.',
+        'Lower front ride height 0.1 to 0.2 in if the car has travel left.'
       ],
     },
     understeerThrottle: {
-      label: 'Understeers on throttle',
+      label: 'Exit understeer',
+      phase: 'Power applied',
       changes: [
-        'Reduce rear diff accel by 5% to 10%.',
+        'Reduce front diff accel by 5% to 10% on FWD/AWD.',
         'For AWD, move center balance 3% to 6% rearward.',
-        'Soften front springs by 5% to 10% or lower front ARB 2 to 5 points.',
-        'If front tires overheat, raise front pressure 0.3 PSI and retest.'
+        'Stiffen rear springs 3% to 8% if the car is too lazy to rotate.',
+        'Stiffen rear bump 0.5 to 1.5 if it squats and pushes wide.',
+        'Reduce rear toe-in if the rear is too locked down.'
+      ],
+    },
+    understeerHighSpeed: {
+      label: 'High-speed understeer',
+      phase: 'Fast sweepers',
+      changes: [
+        'Increase front aero if adjustable.',
+        'Reduce rear aero slightly if the rear is too planted.',
+        'Add 0.1° to 0.3° more negative front camber.',
+        'Lower front ride height 0.1 in if the car is not bottoming out.'
       ],
     },
     oversteerEntry: {
-      label: 'Oversteers on entry',
+      label: 'Entry oversteer',
+      phase: 'Lift / trail brake',
+      changes: [
+        'Increase rear diff decel by 3% to 8% for more stability.',
+        'Lower rear anti-roll bar by 2 to 7 points.',
+        'Move brake balance 1% frontward.',
+        'Soften rear springs by 3% to 8%.',
+        'Stiffen front rebound 0.5 to 1.0 if weight transfer is too sudden.'
+      ],
+    },
+    oversteerMid: {
+      label: 'Mid-corner oversteer',
+      phase: 'Steady cornering',
       changes: [
         'Lower rear anti-roll bar by 2 to 7 points.',
-        'Increase rear diff decel by 3% to 8% for more stability.',
-        'Reduce rear brake pressure feel by moving brake balance 1% frontward.',
-        'Add 0.1° to 0.2° more rear camber if rear temps are even.'
+        'Add 0.1° to 0.3° more negative rear camber.',
+        'Increase rear aero if it happens at speed.',
+        'Lower rear ride height 0.1 to 0.2 in if it has travel left.'
       ],
     },
     powerOversteer: {
       label: 'Power oversteer',
+      phase: 'Exit throttle',
       changes: [
         'Reduce rear diff accel by 5% to 12%.',
         'Lower rear tire pressure 0.3 to 0.8 PSI.',
         'Soften rear springs by 5% to 10%.',
+        'Soften rear bump 0.5 to 1.5.',
         'Lengthen 1st and 2nd gear if the car snaps loose on throttle.'
+      ],
+    },
+    snapOversteer: {
+      label: 'Snap oversteer',
+      phase: 'Sudden rotation',
+      changes: [
+        'Lower rear anti-roll bar 4 to 10 points.',
+        'Soften rear springs 5% to 12%.',
+        'Soften rear rebound 0.5 to 2.0.',
+        'Soften rear bump 0.5 to 1.5.',
+        'Reduce rear diff accel 5% to 10%.'
+      ],
+    },
+    noseDive: {
+      label: 'Nose dives under braking',
+      phase: 'Braking',
+      changes: [
+        'Stiffen front bump 0.5 to 1.5.',
+        'Stiffen front springs 3% to 8%.',
+        'Stiffen front rebound 0.5 to 1.0 only if the car oscillates after braking.',
+        'Raise front ride height 0.1 in if it bottoms out.'
+      ],
+    },
+    bouncyFloaty: {
+      label: 'Bouncy / floaty',
+      phase: 'Bumps and transitions',
+      changes: [
+        'Stiffen bump damping on both axles 0.5 to 1.5.',
+        'Stiffen rebound damping on both axles 0.5 to 1.5.',
+        'Stiffen springs 3% to 8% if damping changes are not enough.',
+        'Keep bump lower than rebound; do not make the car pogo.'
+      ],
+    },
+    skittersBumps: {
+      label: 'Skitters over bumps / curbs',
+      phase: 'Rough surfaces',
+      changes: [
+        'Soften bump damping 0.5 to 2.0.',
+        'Soften springs 5% to 12%.',
+        'Soften anti-roll bars 3 to 8 points.',
+        'Raise ride height 0.2 to 0.5 in.',
+        'Lower tire pressure 0.5 to 1.5 PSI for dirt or mixed surfaces.'
+      ],
+    },
+    bottomsOut: {
+      label: 'Bottoms out / scrapes',
+      phase: 'Compression travel',
+      changes: [
+        'Raise ride height 0.2 to 0.6 in.',
+        'Stiffen springs 5% to 12%.',
+        'Stiffen bump damping 0.5 to 1.5.',
+        'For offroad, prioritize ride height before stiffness.'
+      ],
+    },
+    wheelspinExit: {
+      label: 'Wheelspin on exit',
+      phase: 'Throttle exit',
+      changes: [
+        'Reduce rear diff accel by 5% to 12%.',
+        'Soften rear springs by 5% to 10%.',
+        'Soften rear bump 0.5 to 1.5.',
+        'Increase rear aero if the spin starts in fast exits.',
+        'Lengthen the gear used on corner exit.'
       ],
     },
     wheelspinLaunch: {
       label: 'Wheelspin on launch',
+      phase: 'Standing start',
       changes: [
         'Lengthen 1st gear or reduce final drive.',
         'Lower drive-tire pressure 0.5 to 1.5 PSI.',
@@ -1660,17 +2065,19 @@ tr:last-child td { border-bottom: 0; }
         'For AWD drag, move center balance slightly forward if all four tires spin unevenly.'
       ],
     },
-    bouncingOffroad: {
-      label: 'Bouncing offroad',
+    lazyChicanes: {
+      label: 'Lazy in chicanes',
+      phase: 'Direction changes',
       changes: [
-        'Raise ride height 5% to 10%.',
-        'Soften springs 5% to 12%.',
-        'Lower rebound and bump damping, keeping bump around 55% to 65% of rebound.',
-        'Lower tire pressure 1 to 2 PSI if the car skates across bumps.'
+        'Stiffen both anti-roll bars 3 to 8 points.',
+        'Stiffen rebound damping on both axles 0.5 to 1.5.',
+        'Stiffen springs 3% to 8%.',
+        'Add a small amount of front toe-out if turn-in still feels asleep.'
       ],
     },
     limiterEarly: {
       label: 'Hits limiter too early',
+      phase: 'Gearing',
       changes: [
         'Lengthen final drive by moving the slider toward speed.',
         'Lengthen top gear if only the last gear is too short.',
@@ -1680,6 +2087,7 @@ tr:last-child td { border-bottom: 0; }
     },
     neverTopGear: {
       label: 'Never reaches top gear',
+      phase: 'Gearing',
       changes: [
         'Shorten final drive by moving the slider toward acceleration.',
         'Lower ideal top speed 5 to 15 MPH and regenerate gearing.',
@@ -1696,8 +2104,8 @@ tr:last-child td { border-bottom: 0; }
   };
 })();
 
-</script>
-<script>
+  </script>
+  <script>
 /* Forza Tune App - local storage */
 (function () {
   const FT = (window.ForzaTune = window.ForzaTune || {});
@@ -1743,15 +2151,16 @@ tr:last-child td { border-bottom: 0; }
   };
 })();
 
-</script>
-<script>
-/* Forza Tune App - UI wiring */
+  </script>
+  <script>
+/* FH6GPT Tune Lab - UI wiring */
 (function () {
   const FT = window.ForzaTune;
   let state = {
     raceType: 'grip',
     surface: 'pavement',
     currentTune: null,
+    frontWeightTouched: false,
   };
 
   const $ = (selector) => document.querySelector(selector);
@@ -1784,6 +2193,7 @@ tr:last-child td { border-bottom: 0; }
       button.addEventListener('click', () => {
         state.raceType = button.dataset.race;
         updateActiveButtons();
+        syncSuspensionForMode();
         setDefaultTopSpeed();
         generateAndRender();
       });
@@ -1793,6 +2203,7 @@ tr:last-child td { border-bottom: 0; }
       button.addEventListener('click', () => {
         state.surface = button.dataset.surface;
         updateActiveButtons();
+        syncSuspensionForMode();
         setDefaultTopSpeed();
         generateAndRender();
       });
@@ -1802,6 +2213,17 @@ tr:last-child td { border-bottom: 0; }
   function setupFormDefaults() {
     setDefaultTopSpeed();
     updateActiveButtons();
+
+    $('#weightDistribution').addEventListener('input', () => {
+      state.frontWeightTouched = true;
+    });
+
+    $('#engineLocation').addEventListener('change', () => {
+      if (!state.frontWeightTouched) {
+        const preset = FT.ENGINE_LOCATION_DEFAULTS[$('#engineLocation').value] || FT.ENGINE_LOCATION_DEFAULTS.front;
+        $('#weightDistribution').value = preset.frontWeight;
+      }
+    });
 
     ['change', 'input'].forEach((eventName) => {
       form.addEventListener(eventName, (event) => {
@@ -1821,9 +2243,27 @@ tr:last-child td { border-bottom: 0; }
       form.reset();
       state.raceType = 'grip';
       state.surface = 'pavement';
+      state.frontWeightTouched = false;
       setDefaultTopSpeed();
       updateActiveButtons();
       generateAndRender();
+    });
+
+    $('#copyBtn').addEventListener('click', async () => {
+      if (!state.currentTune) generateAndRender();
+      const text = formatTuneForClipboard(state.currentTune);
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('Tune copied to clipboard.');
+      } catch (error) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+        showToast('Tune copied to clipboard.');
+      }
     });
 
     $('#saveBtn').addEventListener('click', () => {
@@ -1867,6 +2307,13 @@ tr:last-child td { border-bottom: 0; }
     });
   }
 
+  function syncSuspensionForMode() {
+    const suspensionInput = $('#suspensionType');
+    if (state.surface === 'offroad' || state.surface === 'mixed') suspensionInput.value = 'rally';
+    if (state.raceType === 'drift') suspensionInput.value = 'drift';
+    if (state.raceType === 'drag' && state.surface === 'pavement') suspensionInput.value = 'race';
+  }
+
   function setDefaultTopSpeed() {
     const speed = FT.getDefaultTopSpeed(carClassInput.value, state.raceType, state.surface, routeStyleInput.value);
     topSpeedInput.value = speed;
@@ -1880,15 +2327,21 @@ tr:last-child td { border-bottom: 0; }
       surface: state.surface,
       routeStyle: $('#routeStyle').value,
       drivetrain: $('#drivetrain').value,
+      engineLocation: $('#engineLocation').value,
+      bodyType: $('#bodyType').value,
       tireCompound: $('#tireCompound').value,
+      suspensionType: $('#suspensionType').value,
+      handlingBias: $('#handlingBias').value,
       horsepower: $('#horsepower').value,
+      torque: $('#torque').value,
       weight: $('#weight').value,
       weightDistribution: $('#weightDistribution').value,
       gearCount: $('#gearCount').value,
       redlineRpm: $('#redlineRpm').value,
       idealTopSpeedMph: $('#idealTopSpeedMph').value,
       tireDiameterInches: $('#tireDiameterInches').value,
-      adjustableAero: $('#adjustableAero').checked,
+      frontAero: $('#frontAero').checked,
+      rearAero: $('#rearAero').checked,
     };
   }
 
@@ -1912,7 +2365,7 @@ tr:last-child td { border-bottom: 0; }
         <div>
           <p class="eyebrow">Generated tune</p>
           <h2>${escapeHtml(tune.carName)}</h2>
-          <p>${tune.summary.carClass}-Class ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel} · ${tune.summary.drivetrain}</p>
+          <p>${tune.summary.carClass}-Class ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel} · ${tune.summary.drivetrain} · ${tune.summary.handlingBiasLabel}</p>
         </div>
         <div class="speed-badge">
           <span>${tune.summary.idealTopSpeedMph}</span>
@@ -1921,6 +2374,14 @@ tr:last-child td { border-bottom: 0; }
       </section>
 
       <div class="result-grid">
+        ${renderCard('Build profile', [
+          ['Engine', tune.summary.engineLocationLabel],
+          ['Body', tune.summary.bodyTypeLabel],
+          ['Suspension', tune.summary.suspensionTypeLabel],
+          ['Tires', tune.summary.tireCompoundLabel],
+          ['Power', `${tune.summary.horsepower} hp / ${tune.summary.torque} lb-ft`],
+        ], 'Profile inputs now influence spring, damper, aero, and differential scaling.')}
+
         ${renderCard('Tires', [
           ['Front', `${tune.tires.frontPsi} PSI`],
           ['Rear', `${tune.tires.rearPsi} PSI`],
@@ -1971,6 +2432,7 @@ tr:last-child td { border-bottom: 0; }
           </div>
           <span class="pill">${tune.gearing.gearCount} gears</span>
         </div>
+        ${renderGearGraph(tune)}
         <div class="table-wrap">
           <table>
             <thead>
@@ -1979,8 +2441,8 @@ tr:last-child td { border-bottom: 0; }
             <tbody>${gearRows}</tbody>
           </table>
         </div>
-        <p class="muted">${tune.gearing.shiftNote}</p>
-        <p class="formula">${tune.gearing.formula}</p>
+        <p class="muted">${escapeHtml(tune.gearing.shiftNote)}</p>
+        <p class="formula">${escapeHtml(tune.gearing.formula)}</p>
       </section>
 
       <section class="panel notes-panel">
@@ -1990,15 +2452,34 @@ tr:last-child td { border-bottom: 0; }
     `;
   }
 
+  function renderGearGraph(tune) {
+    const maxSpeed = Math.max(...tune.gearing.redlineSpeeds, tune.summary.idealTopSpeedMph);
+    const bars = tune.gearing.redlineSpeeds.map((speed, index) => {
+      const width = Math.max(5, Math.min(100, (speed / maxSpeed) * 100));
+      return `
+        <div class="gear-bar-row">
+          <span>G${index + 1}</span>
+          <div class="gear-bar-track"><i style="width:${width}%"></i></div>
+          <b>${speed.toFixed(0)} mph</b>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="gear-graph" aria-label="Gear redline speed graph">
+        ${bars}
+      </div>
+    `;
+  }
+
   function renderCard(title, rows, note) {
     return `
       <section class="result-card">
-        <h3>${title}</h3>
+        <h3>${escapeHtml(title)}</h3>
         <dl>
           ${rows.map(([label, value]) => `
             <div>
-              <dt>${label}</dt>
-              <dd>${value}</dd>
+              <dt>${escapeHtml(label)}</dt>
+              <dd>${escapeHtml(value)}</dd>
             </div>
           `).join('')}
         </dl>
@@ -2024,20 +2505,18 @@ tr:last-child td { border-bottom: 0; }
   }
 
   function aeroRows(tune) {
-    if (tune.aero.frontRatio === null) {
-      return [['Status', 'Not adjustable']];
-    }
-    return [
-      ['Front ratio', tune.aero.frontRatio],
-      ['Rear ratio', tune.aero.rearRatio],
-    ];
+    const rows = [];
+    rows.push(['Front aero', tune.aero.frontRatio === null ? 'Not adjustable' : tune.aero.frontRatio]);
+    rows.push(['Rear aero', tune.aero.rearRatio === null ? 'Not adjustable' : tune.aero.rearRatio]);
+    return rows;
   }
 
   function renderCorrection(key) {
     const correction = FT.TuningEngine.CORRECTIONS[key];
     if (!correction) return;
     correctionOutput.innerHTML = `
-      <h3>${correction.label}</h3>
+      <h3>${escapeHtml(correction.label)}</h3>
+      <p class="muted"><strong>Phase:</strong> ${escapeHtml(correction.phase || 'General')}</p>
       <ol>${correction.changes.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ol>
       <p class="muted">Make one change at a time, run the same route again, then judge by lap feel and tire telemetry.</p>
     `;
@@ -2054,7 +2533,7 @@ tr:last-child td { border-bottom: 0; }
       <article class="saved-item">
         <div>
           <strong>${escapeHtml(tune.carName)}</strong>
-          <span>${tune.summary.carClass} · ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel}</span>
+          <span>${tune.summary.carClass} · ${tune.summary.raceLabel} · ${tune.summary.surfaceLabel} · ${tune.summary.handlingBiasLabel || 'Neutral'}</span>
         </div>
         <div class="saved-actions">
           <button type="button" data-load="${tune.id}">Load</button>
@@ -2082,21 +2561,50 @@ tr:last-child td { border-bottom: 0; }
     $('#carClass').value = saved.summary.carClass;
     $('#routeStyle').value = saved.summary.routeStyle || 'balanced';
     $('#drivetrain').value = saved.summary.drivetrain;
+    $('#engineLocation').value = saved.summary.engineLocation || 'front';
+    $('#bodyType').value = saved.summary.bodyType || 'track';
     $('#tireCompound').value = saved.summary.tireCompound || 'sport';
+    $('#suspensionType').value = saved.summary.suspensionType || 'race';
+    $('#handlingBias').value = saved.summary.handlingBias || 'neutral';
     $('#horsepower').value = saved.summary.horsepower;
+    $('#torque').value = saved.summary.torque || Math.round((saved.summary.horsepower || 450) * 0.85);
     $('#weight').value = saved.summary.weight;
     $('#weightDistribution').value = saved.summary.weightDistribution;
     $('#gearCount').value = saved.gearing.gearCount;
     $('#redlineRpm').value = saved.gearing.redlineRpm || $('#redlineRpm').value;
     $('#idealTopSpeedMph').value = saved.summary.idealTopSpeedMph;
     $('#tireDiameterInches').value = saved.gearing.tireDiameterInches || $('#tireDiameterInches').value;
-    $('#adjustableAero').checked = saved.aero.frontRatio !== null;
+    $('#frontAero').checked = saved.summary.frontAero !== undefined ? saved.summary.frontAero : saved.aero.frontRatio !== null;
+    $('#rearAero').checked = saved.summary.rearAero !== undefined ? saved.summary.rearAero : saved.aero.rearRatio !== null;
     state.raceType = saved.summary.raceType;
     state.surface = saved.summary.surface;
+    state.frontWeightTouched = true;
     updateActiveButtons();
     state.currentTune = saved;
     renderTune(saved);
     showToast('Tune loaded.');
+  }
+
+  function formatTuneForClipboard(tune) {
+    const lines = [];
+    lines.push(`${tune.carName} — ${tune.summary.carClass} ${tune.summary.raceLabel} / ${tune.summary.surfaceLabel}`);
+    lines.push(`${tune.summary.drivetrain}, ${tune.summary.engineLocationLabel} engine, ${tune.summary.bodyTypeLabel}, ${tune.summary.handlingBiasLabel}`);
+    lines.push('');
+    lines.push(`Tires: F ${tune.tires.frontPsi} PSI / R ${tune.tires.rearPsi} PSI`);
+    lines.push(`Alignment: camber F ${FT.formatSigned(tune.alignment.frontCamber)}° / R ${FT.formatSigned(tune.alignment.rearCamber)}°, toe F ${FT.formatSigned(tune.alignment.frontToe, 2)}° / R ${FT.formatSigned(tune.alignment.rearToe, 2)}°, caster ${tune.alignment.caster}°`);
+    lines.push(`ARBs: F ${tune.antiRollBars.frontSetting} / R ${tune.antiRollBars.rearSetting}`);
+    lines.push(`Springs: F ${tune.springs.frontRateLbIn} lb/in / R ${tune.springs.rearRateLbIn} lb/in`);
+    lines.push(`Ride height: F ${tune.springs.frontRideHeightIn} in / R ${tune.springs.rearRideHeightIn} in`);
+    lines.push(`Damping: rebound F ${tune.damping.frontReboundSetting} / R ${tune.damping.rearReboundSetting}, bump F ${tune.damping.frontBumpSetting} / R ${tune.damping.rearBumpSetting}`);
+    lines.push(`Brakes: ${tune.brakes.balanceFrontPercent}% front / ${tune.brakes.pressurePercent}% pressure`);
+    const diff = diffRows(tune).map(([label, value]) => `${label} ${value}`).join(', ');
+    lines.push(`Diff: ${diff}`);
+    lines.push(`Aero: front ${tune.aero.frontRatio === null ? 'not adjustable' : tune.aero.frontRatio}, rear ${tune.aero.rearRatio === null ? 'not adjustable' : tune.aero.rearRatio}`);
+    lines.push(`Gearing: final drive ${tune.gearing.finalDrive.toFixed(2)}, ${tune.gearing.gears.map((g, i) => `G${i + 1} ${g.toFixed(2)}`).join(', ')}`);
+    lines.push('');
+    lines.push('Notes:');
+    tune.notes.forEach((note) => lines.push(`- ${note}`));
+    return lines.join('\n');
   }
 
   function showToast(message) {
@@ -2118,6 +2626,6 @@ tr:last-child td { border-bottom: 0; }
   document.addEventListener('DOMContentLoaded', init);
 })();
 
-</script>
+  </script>
 </body>
 </html>

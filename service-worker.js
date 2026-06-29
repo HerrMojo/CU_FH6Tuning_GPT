@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forza-tune-lab-v1';
+const CACHE_NAME = 'fh6gpt-tune-lab-v3';
 const APP_FILES = [
   './',
   './index.html',
@@ -14,6 +14,7 @@ const APP_FILES = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_FILES)));
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -21,7 +22,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => Promise.all(keys.map((key) => {
       if (key !== CACHE_NAME) return caches.delete(key);
       return null;
-    })))
+    }))).then(() => self.clients.claim())
   );
 });
 

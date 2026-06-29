@@ -1,19 +1,47 @@
-# Forza Horizon Tune Lab
+# FH6GPT Tune Lab
 
-A browser-based tuning calculator for Forza Horizon builds. It generates starter tunes for:
+A static browser-based Forza Horizon tuning calculator for grip, drift, and drag builds across pavement, mixed, and offroad surfaces.
 
-- Grip, drift, and drag racing
-- Pavement, mixed, and offroad surfaces
-- Classes D through X
-- FWD, RWD, and AWD drivetrains
-- Gearboxes from 4 to 10 gears
-- Target top speed and redline-based gearing
+## What it does
 
-## How to run
+- Generates game-facing recommendations for:
+  - Tire pressure
+  - Gearing
+  - Alignment
+  - Anti-roll bars
+  - Springs and ride height
+  - Damping
+  - Aero
+  - Brakes
+  - Differential
+- Supports D through X class scaling.
+- Supports FWD, RWD, and AWD drivetrains.
+- Supports front, mid, and rear engine layout assumptions.
+- Supports body type, suspension type, tire compound, torque, horsepower, weight, and front weight percentage inputs.
+- Adds a handling-bias selector: Stable / Neutral / More rotation.
+- Supports separate front and rear aero availability.
+- Includes a phase-based diagnostic system for braking, turn-in, mid-corner, exit, bump, and gearing problems.
+- Saves tunes locally in the browser.
+- Exports tune JSON.
+- Copies a readable tune summary to the clipboard.
+- Includes a cyberpunk neon theme using `#2CFF05`, `#FFC4FB`, `#51158C`, and `#00F0FF`.
 
-Open `index.html` directly in a browser for the calculator.
+## Notes on values
 
-For full PWA behavior, including service worker caching, serve the folder from a local web server:
+The app displays main values in Forza-style units:
+
+- Anti-roll bars: 0 to 100 style setting
+- Springs: lb/in
+- Ride height: inches, front and rear
+- Damping: 1 to 20, front/rear rebound and bump
+- Differential: percentages
+- Tire pressure: PSI
+
+The app still stores some internal normalized ratios for calculation and JSON export, but the visible tune cards prioritize game-facing values.
+
+## Running locally
+
+Open `index.html` directly in a browser, or run a simple local server:
 
 ```bash
 python3 -m http.server 8080
@@ -25,32 +53,29 @@ Then open:
 http://localhost:8080
 ```
 
-## Project structure
+## Publishing
 
-```text
-index.html           Interface
-styles.css           Visual design
-presets.js           Class, surface, mode, and default speed data
-gearboxEngine.js     Gear ratio and top speed math
-tuningEngine.js      Tire, alignment, suspension, diff, aero, and brake logic
-storage.js           localStorage save/load helpers
-app.js               UI behavior
-manifest.json        PWA manifest
-service-worker.js    Offline cache
-icon.svg             App icon
-```
+This project is static HTML/CSS/JavaScript. It can be published with GitHub Pages by uploading the files to the repository root and enabling Pages from `main / root`.
 
-## Notes
+## Reference-inspired improvements
 
-Forza does not expose every car's internal physics values, so this app uses starting-point calculations. The main tune output now uses game-facing units wherever possible:
+This build adds reference-inspired ideas without copying any third-party tuning formulas directly:
 
-- Anti-roll bars: Forza-style slider values around 1 to 100
-- Springs: lb/in estimates based on weight, weight distribution, car class, race mode, and surface
-- Ride height: separate front/rear estimates in inches
-- Damping: separate front/rear rebound and bump stiffness on Forza's 1 to 20 scale
+- More complete 9-tab tuning coverage
+- More diagnostic symptom cards
+- Torque-influenced differential behavior
+- Handling-bias control
+- Body type, suspension type, engine location, and aero availability inputs
+- Gear redline speed visualization
+- Copy-to-clipboard output
+- Phase-based tuning workflow notes
 
-Aero still uses normalized low/medium/high guidance where the exact in-game min/max changes by car. Refine every generated tune with the troubleshooting buttons and in-game telemetry.
+All tunes are starting points. Drive, diagnose by phase, change one setting, then retest.
 
-## Theme
+## Font
 
-This version uses a cyberpunk-inspired neon theme built around these colors: `#2CFF05`, `#FFC4FB`, `#51158C`, and `#00F0FF`.
+The app now uses an OpenDyslexic-first font stack:
+
+`OpenDyslexic`, `OpenDyslexicAlta`, `Atkinson Hyperlegible`, then system UI fallbacks.
+
+No font files are bundled in this project. If OpenDyslexic is installed on the device, the browser will use it. Otherwise, the app falls back to a readable system font.

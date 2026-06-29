@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#140921" />
-  <title>Forza Horizon Tune Lab</title>
+  <title>FH6GPT Tune Lab</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -14,13 +14,14 @@
       <nav class="topbar" aria-label="Main navigation">
         <a href="#setup">Setup</a>
         <a href="#results">Tune</a>
+        <a href="#guide">Guide</a>
         <a href="#fix">Fix</a>
         <a href="#saved">Saved</a>
       </nav>
       <div class="hero-content">
-        <p class="eyebrow">Forza Horizon tuning calculator</p>
+        <p class="eyebrow">FH6GPT tuning calculator</p>
         <h1>Build a tune for grip, drift, or drag.</h1>
-        <p class="hero-copy">Pick a class, surface, drivetrain, and gearbox target. The app generates a starting tune with game-facing suspension settings, diff settings, tire pressures, and gear ratios.</p>
+        <p class="hero-copy">Pick a class, surface, drivetrain, intent, and gearbox target. The app generates a starting tune with game-facing suspension settings, diff settings, tire pressures, and gear ratios.</p>
         <div class="hero-actions">
           <a class="button primary" href="#setup">Start tuning</a>
           <a class="button ghost" href="#fix">Troubleshoot</a>
@@ -35,7 +36,7 @@
             <p class="eyebrow">Step 1</p>
             <h2>Choose the build personality</h2>
           </div>
-          <span class="pill">Xbox sidekick ready</span>
+          <span class="pill">Second-screen tuner</span>
         </div>
 
         <div class="mode-grid" aria-label="Tune type">
@@ -67,7 +68,7 @@
         <div class="section-title-row">
           <div>
             <p class="eyebrow">Step 2</p>
-            <h2 id="carSetupTitle">Car and gearbox setup</h2>
+            <h2 id="carSetupTitle">Car, intent, and gearbox setup</h2>
           </div>
         </div>
 
@@ -100,15 +101,50 @@
           </label>
 
           <label>
+            <span>Engine location</span>
+            <select id="engineLocation">
+              <option value="front" selected>Front</option>
+              <option value="mid">Mid</option>
+              <option value="rear">Rear</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Body type</span>
+            <select id="bodyType">
+              <option value="everyday">Everyday</option>
+              <option value="track" selected>Track / aero</option>
+              <option value="super">Supercar / GT</option>
+              <option value="hyper">Hypercar</option>
+              <option value="truck">Truck / SUV</option>
+            </select>
+          </label>
+
+          <label>
             <span>Tire compound</span>
             <select id="tireCompound">
               <option value="stock">Stock</option>
               <option value="street">Street</option>
               <option value="sport" selected>Sport</option>
               <option value="race">Race</option>
+              <option value="semislick">Semi-slick</option>
+              <option value="slick">Slick</option>
               <option value="drag">Drag</option>
+              <option value="drift">Drift</option>
               <option value="rally">Rally</option>
               <option value="offroad">Offroad</option>
+              <option value="snow">Snow</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Suspension</span>
+            <select id="suspensionType">
+              <option value="street">Street / stock</option>
+              <option value="sport">Sport</option>
+              <option value="race" selected>Race</option>
+              <option value="rally">Rally</option>
+              <option value="drift">Drift</option>
             </select>
           </label>
 
@@ -122,12 +158,26 @@
           </label>
 
           <label>
+            <span>Handling bias</span>
+            <select id="handlingBias">
+              <option value="stable">Stable / safe</option>
+              <option value="neutral" selected>Neutral</option>
+              <option value="rotation">More rotation</option>
+            </select>
+          </label>
+
+          <label>
             <span>Horsepower</span>
             <input id="horsepower" type="number" value="520" min="60" max="2000" />
           </label>
 
           <label>
-            <span>Weight</span>
+            <span>Torque, lb-ft</span>
+            <input id="torque" type="number" value="450" min="40" max="1800" />
+          </label>
+
+          <label>
+            <span>Weight, lb</span>
             <input id="weight" type="number" value="3200" min="1200" max="6500" />
           </label>
 
@@ -157,13 +207,19 @@
           </label>
 
           <label class="checkbox-label">
-            <input id="adjustableAero" type="checkbox" checked />
-            <span>Adjustable aero installed</span>
+            <input id="frontAero" type="checkbox" checked />
+            <span>Front aero adjustable</span>
+          </label>
+
+          <label class="checkbox-label">
+            <input id="rearAero" type="checkbox" checked />
+            <span>Rear aero adjustable</span>
           </label>
         </form>
 
         <div class="action-row">
           <button type="button" class="button primary" id="generateBtn">Generate tune</button>
+          <button type="button" class="button ghost" id="copyBtn">Copy tune</button>
           <button type="button" class="button ghost" id="saveBtn">Save tune</button>
           <button type="button" class="button ghost" id="exportBtn">Export JSON</button>
           <button type="button" class="button quiet" id="resetBtn">Reset</button>
@@ -174,6 +230,23 @@
         <div id="tuneOutput"></div>
       </section>
 
+      <section class="panel" id="guide">
+        <div class="section-title-row">
+          <div>
+            <p class="eyebrow">Method</p>
+            <h2>Phase-based tuning workflow</h2>
+          </div>
+          <span class="pill">Change one thing, retest</span>
+        </div>
+        <div class="guide-grid">
+          <article><strong>Braking</strong><span>Brake balance, front bump, weight transfer.</span></article>
+          <article><strong>Turn-in</strong><span>Camber, caster, front rebound, decel diff, front ARB.</span></article>
+          <article><strong>Mid-corner</strong><span>ARBs, springs, ride height, aero balance.</span></article>
+          <article><strong>Exit</strong><span>Accel diff, rear springs/ARB, rear damping, rear toe.</span></article>
+        </div>
+        <p class="muted">The calculator gives a baseline. Drive one test route, pick the symptom that matches the phase, make one small change, then retest.</p>
+      </section>
+
       <section class="panel" id="fix">
         <div class="section-title-row">
           <div>
@@ -182,12 +255,21 @@
           </div>
         </div>
         <div class="fix-grid">
-          <button type="button" class="fix-button" data-fix="understeerEntry">Understeers on entry</button>
-          <button type="button" class="fix-button" data-fix="understeerThrottle">Understeers on throttle</button>
-          <button type="button" class="fix-button" data-fix="oversteerEntry">Oversteers on entry</button>
+          <button type="button" class="fix-button" data-fix="understeerEntry">Entry understeer</button>
+          <button type="button" class="fix-button" data-fix="understeerMid">Mid-corner understeer</button>
+          <button type="button" class="fix-button" data-fix="understeerThrottle">Exit understeer</button>
+          <button type="button" class="fix-button" data-fix="understeerHighSpeed">High-speed understeer</button>
+          <button type="button" class="fix-button" data-fix="oversteerEntry">Entry oversteer</button>
+          <button type="button" class="fix-button" data-fix="oversteerMid">Mid-corner oversteer</button>
           <button type="button" class="fix-button" data-fix="powerOversteer">Power oversteer</button>
+          <button type="button" class="fix-button" data-fix="snapOversteer">Snap oversteer</button>
+          <button type="button" class="fix-button" data-fix="noseDive">Nose dives braking</button>
+          <button type="button" class="fix-button" data-fix="bouncyFloaty">Bouncy / floaty</button>
+          <button type="button" class="fix-button" data-fix="skittersBumps">Skitters over bumps</button>
+          <button type="button" class="fix-button" data-fix="bottomsOut">Bottoms out</button>
+          <button type="button" class="fix-button" data-fix="wheelspinExit">Wheelspin on exit</button>
           <button type="button" class="fix-button" data-fix="wheelspinLaunch">Wheelspin on launch</button>
-          <button type="button" class="fix-button" data-fix="bouncingOffroad">Bouncing offroad</button>
+          <button type="button" class="fix-button" data-fix="lazyChicanes">Lazy in chicanes</button>
           <button type="button" class="fix-button" data-fix="limiterEarly">Hits limiter too early</button>
           <button type="button" class="fix-button" data-fix="neverTopGear">Never reaches top gear</button>
         </div>

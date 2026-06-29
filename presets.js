@@ -1,4 +1,4 @@
-/* Forza Tune App - shared presets and utility helpers */
+/* FH6GPT Tune Lab - shared presets and utility helpers */
 (function () {
   const FT = (window.ForzaTune = window.ForzaTune || {});
 
@@ -68,6 +68,52 @@
     },
   };
 
+  FT.HANDLING_BIAS = {
+    stable: {
+      label: 'Stable / safe',
+      frontGripShift: 0.04,
+      rearGripShift: 0.1,
+      rotation: -0.08,
+      note: 'Biases the baseline toward rear stability and calmer throttle exits.',
+    },
+    neutral: {
+      label: 'Neutral',
+      frontGripShift: 0,
+      rearGripShift: 0,
+      rotation: 0,
+      note: 'Keeps front and rear balance centered.',
+    },
+    rotation: {
+      label: 'More rotation',
+      frontGripShift: 0.08,
+      rearGripShift: -0.06,
+      rotation: 0.1,
+      note: 'Biases the baseline toward sharper turn-in and more rotation.',
+    },
+  };
+
+  FT.ENGINE_LOCATION_DEFAULTS = {
+    front: { label: 'Front', frontWeight: 55, springBias: 0.05 },
+    mid: { label: 'Mid', frontWeight: 48, springBias: 0 },
+    rear: { label: 'Rear', frontWeight: 43, springBias: -0.06 },
+  };
+
+  FT.BODY_TYPE_PRESETS = {
+    everyday: { label: 'Everyday', stiffness: -0.03, height: 0.1, aero: 0 },
+    track: { label: 'Track / aero', stiffness: 0.03, height: -0.05, aero: 0.06 },
+    super: { label: 'Supercar / GT', stiffness: 0.07, height: -0.18, aero: 0.08 },
+    hyper: { label: 'Hypercar', stiffness: 0.11, height: -0.28, aero: 0.12 },
+    truck: { label: 'Truck / SUV', stiffness: -0.1, height: 0.55, aero: -0.05 },
+  };
+
+  FT.SUSPENSION_TYPES = {
+    street: { label: 'Street / stock', stiffness: -0.12, damping: -0.08, height: 0.18 },
+    sport: { label: 'Sport', stiffness: -0.04, damping: -0.03, height: 0.06 },
+    race: { label: 'Race', stiffness: 0.06, damping: 0.05, height: -0.08 },
+    rally: { label: 'Rally', stiffness: -0.13, damping: -0.13, height: 0.48 },
+    drift: { label: 'Drift', stiffness: 0.02, damping: -0.04, height: 0.08 },
+  };
+
   FT.DEFAULT_TOP_SPEEDS = {
     D: { grip: { pavement: 110, mixed: 100, offroad: 90 }, drag: 125, drift: 90 },
     C: { grip: { pavement: 130, mixed: 115, offroad: 100 }, drag: 145, drift: 105 },
@@ -89,9 +135,13 @@
     street: { grip: 0.95, pressure: 0.4, label: 'Street' },
     sport: { grip: 1, pressure: 0, label: 'Sport' },
     race: { grip: 1.06, pressure: -0.3, label: 'Race' },
+    semislick: { grip: 1.08, pressure: -0.5, label: 'Semi-slick' },
+    slick: { grip: 1.1, pressure: -0.7, label: 'Slick' },
     drag: { grip: 1.04, pressure: -1.2, label: 'Drag' },
+    drift: { grip: 0.97, pressure: 1.0, label: 'Drift' },
     rally: { grip: 0.98, pressure: -2.3, label: 'Rally' },
     offroad: { grip: 0.96, pressure: -3.2, label: 'Offroad' },
+    snow: { grip: 0.92, pressure: -3.8, label: 'Snow' },
   };
 
   FT.DRIVETRAIN_PRESETS = {
