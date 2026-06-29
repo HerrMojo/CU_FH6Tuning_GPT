@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fh6gpt-tune-lab-v3';
+const CACHE_NAME = 'fh6gpt-tune-lab-v5';
 const APP_FILES = [
   './',
   './index.html',

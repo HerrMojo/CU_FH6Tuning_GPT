@@ -4,8 +4,8 @@
   "description": "A Forza Horizon tuning calculator for grip, drift, and drag builds with phase-based diagnostics.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#09030f",
-  "theme_color": "#140921",
+  "background_color": "#4c24b8",
+  "theme_color": "#6523b0",
   "icons": [
     {
       "src": "icon.svg",

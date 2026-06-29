@@ -79,3 +79,19 @@ The app now uses an OpenDyslexic-first font stack:
 `OpenDyslexic`, `OpenDyslexicAlta`, `Atkinson Hyperlegible`, then system UI fallbacks.
 
 No font files are bundled in this project. If OpenDyslexic is installed on the device, the browser will use it. Otherwise, the app falls back to a readable system font.
+
+## Background style
+
+This variant uses a softer purple-to-magenta fade background inspired by the provided reference image, while keeping the cyberpunk UI accents and OpenDyslexic-first font stack.
+
+## Bold fade variant
+
+This variant pushes the background toward a more saturated, bolder, slightly darker blue-purple-magenta fade while keeping the OpenDyslexic-first font stack and neon UI accents.
+
+## Game-facing unit fix
+
+This revision maps anti-roll bars to Forza’s 1–65 setting range instead of showing percentage-style values. Aero recommendations now display estimated pounds of downforce for front and rear aero rather than raw internal ratios.
+
+## Aero range inputs
+
+The app now includes front/rear aero min and max fields in pounds. Enter the minimum and maximum shown by the Forza aero slider for the car, and the calculator will map its internal aero balance to a usable pound value inside that range.

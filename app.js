@@ -187,6 +187,10 @@
       tireDiameterInches: $('#tireDiameterInches').value,
       frontAero: $('#frontAero').checked,
       rearAero: $('#rearAero').checked,
+      frontAeroMinLb: $('#frontAeroMinLb').value,
+      frontAeroMaxLb: $('#frontAeroMaxLb').value,
+      rearAeroMinLb: $('#rearAeroMinLb').value,
+      rearAeroMaxLb: $('#rearAeroMaxLb').value,
     };
   }
 
@@ -241,8 +245,8 @@
         ], tune.alignment.note)}
 
         ${renderCard('Anti-roll bars', [
-          ['Front setting', `${tune.antiRollBars.frontSetting ?? FT.round(tune.antiRollBars.frontRatio * 100, 1)} (${tune.antiRollBars.frontLabel})`],
-          ['Rear setting', `${tune.antiRollBars.rearSetting ?? FT.round(tune.antiRollBars.rearRatio * 100, 1)} (${tune.antiRollBars.rearLabel})`],
+          ['Front setting', `${tune.antiRollBars.frontSetting ?? FT.round(1 + tune.antiRollBars.frontRatio * 64, 1)} / 65 (${tune.antiRollBars.frontLabel})`],
+          ['Rear setting', `${tune.antiRollBars.rearSetting ?? FT.round(1 + tune.antiRollBars.rearRatio * 64, 1)} / 65 (${tune.antiRollBars.rearLabel})`],
         ], tune.suspensionNote)}
 
         ${renderCard('Springs & ride height', [
@@ -349,10 +353,19 @@
     return rows;
   }
 
+  function formatAero(axis, tune) {
+    const ratio = axis === 'front' ? tune.aero.frontRatio : tune.aero.rearRatio;
+    const downforce = axis === 'front' ? tune.aero.frontDownforceLb : tune.aero.rearDownforceLb;
+    const label = axis === 'front' ? tune.aero.frontLabel : tune.aero.rearLabel;
+    if (ratio === null) return 'Not adjustable';
+    if (downforce !== undefined && downforce !== null) return `${downforce} lb (${label || 'estimated'})`;
+    return `Legacy ratio ${ratio}`;
+  }
+
   function aeroRows(tune) {
     const rows = [];
-    rows.push(['Front aero', tune.aero.frontRatio === null ? 'Not adjustable' : tune.aero.frontRatio]);
-    rows.push(['Rear aero', tune.aero.rearRatio === null ? 'Not adjustable' : tune.aero.rearRatio]);
+    rows.push(['Front aero', formatAero('front', tune)]);
+    rows.push(['Rear aero', formatAero('rear', tune)]);
     return rows;
   }
 
@@ -421,6 +434,10 @@
     $('#tireDiameterInches').value = saved.gearing.tireDiameterInches || $('#tireDiameterInches').value;
     $('#frontAero').checked = saved.summary.frontAero !== undefined ? saved.summary.frontAero : saved.aero.frontRatio !== null;
     $('#rearAero').checked = saved.summary.rearAero !== undefined ? saved.summary.rearAero : saved.aero.rearRatio !== null;
+    $('#frontAeroMinLb').value = saved.summary.frontAeroMinLb ?? $('#frontAeroMinLb').value;
+    $('#frontAeroMaxLb').value = saved.summary.frontAeroMaxLb ?? $('#frontAeroMaxLb').value;
+    $('#rearAeroMinLb').value = saved.summary.rearAeroMinLb ?? $('#rearAeroMinLb').value;
+    $('#rearAeroMaxLb').value = saved.summary.rearAeroMaxLb ?? $('#rearAeroMaxLb').value;
     state.raceType = saved.summary.raceType;
     state.surface = saved.summary.surface;
     state.frontWeightTouched = true;
@@ -444,7 +461,7 @@
     lines.push(`Brakes: ${tune.brakes.balanceFrontPercent}% front / ${tune.brakes.pressurePercent}% pressure`);
     const diff = diffRows(tune).map(([label, value]) => `${label} ${value}`).join(', ');
     lines.push(`Diff: ${diff}`);
-    lines.push(`Aero: front ${tune.aero.frontRatio === null ? 'not adjustable' : tune.aero.frontRatio}, rear ${tune.aero.rearRatio === null ? 'not adjustable' : tune.aero.rearRatio}`);
+    lines.push(`Aero: front ${tune.aero.frontRatio === null ? 'not adjustable' : `${tune.aero.frontDownforceLb ?? tune.aero.frontRatio} lb`}, rear ${tune.aero.rearRatio === null ? 'not adjustable' : `${tune.aero.rearDownforceLb ?? tune.aero.rearRatio} lb`}`);
     lines.push(`Gearing: final drive ${tune.gearing.finalDrive.toFixed(2)}, ${tune.gearing.gears.map((g, i) => `G${i + 1} ${g.toFixed(2)}`).join(', ')}`);
     lines.push('');
     lines.push('Notes:');

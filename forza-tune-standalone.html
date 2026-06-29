@@ -3,28 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#140921" />
+  <meta name="theme-color" content="#6523b0" />
   <title>FH6GPT Tune Lab</title>
   <style>
 :root {
   color-scheme: dark;
-  --bg: #09030f;
-  --bg-2: #12061d;
-  --panel: rgba(19, 7, 31, 0.82);
-  --panel-solid: #140921;
-  --panel-soft: rgba(31, 12, 49, 0.74);
-  --line: rgba(0, 240, 255, 0.24);
-  --line-strong: rgba(255, 196, 251, 0.42);
+  --bg: #3523b7;
+  --bg-2: #8a1f7b;
+  --panel: rgba(18, 9, 52, 0.72);
+  --panel-solid: rgba(25, 12, 74, 0.94);
+  --panel-soft: rgba(31, 16, 84, 0.72);
+  --line: rgba(255, 255, 255, 0.18);
+  --line-strong: rgba(255, 255, 255, 0.26);
   --text: #f8f4ff;
-  --muted: #b8a1ca;
-  --soft: #e8d8f6;
+  --muted: #f0e9ff;
+  --soft: #fff6ff;
   --accent: #2CFF05;
   --accent-2: #FFC4FB;
   --violet: #51158C;
   --cyan: #00F0FF;
   --hot: #FFC4FB;
   --good: #2CFF05;
-  --shadow: 0 26px 80px rgba(0, 0, 0, 0.52);
+  --shadow: 0 24px 72px rgba(15, 5, 40, 0.42);
   --glow-cyan: 0 0 0 1px rgba(0, 240, 255, 0.18), 0 0 18px rgba(0, 240, 255, 0.14), 0 0 36px rgba(0, 240, 255, 0.08);
   --glow-pink: 0 0 0 1px rgba(255, 196, 251, 0.18), 0 0 20px rgba(255, 196, 251, 0.16), 0 0 42px rgba(255, 196, 251, 0.08);
   --radius: 24px;
@@ -47,10 +47,8 @@ body {
   letter-spacing: 0.01em;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 12%, rgba(0, 240, 255, 0.16), transparent 24rem),
-    radial-gradient(circle at 85% 10%, rgba(255, 196, 251, 0.18), transparent 28rem),
-    radial-gradient(circle at 50% 85%, rgba(44, 255, 5, 0.10), transparent 32rem),
-    linear-gradient(135deg, #05020a 0%, #0c0414 30%, #140625 70%, #09030f 100%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.00) 16%),
+    linear-gradient(105deg, #3523b7 0%, #4c24b8 24%, #6523b0 49%, #7a229d 73%, #8a1f7b 100%);
   color: var(--text);
   position: relative;
 }
@@ -60,12 +58,8 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-  background-size: 100% 28px, 28px 100%;
-  mask-image: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent 90%);
-  opacity: 0.26;
+  background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent 20%, transparent 76%, rgba(0,0,0,0.12));
+  opacity: 1;
 }
 
 button,
@@ -112,13 +106,12 @@ button { cursor: pointer; }
   position: relative;
   overflow: hidden;
   min-height: 460px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 34px;
   background:
-    linear-gradient(135deg, rgba(20, 7, 33, 0.80), rgba(8, 2, 13, 0.94)),
-    repeating-linear-gradient(120deg, rgba(0, 240, 255, 0.06) 0 1px, transparent 1px 22px),
-    linear-gradient(180deg, rgba(255, 196, 251, 0.06), transparent 40%);
-  box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.03), 0 0 0 1px rgba(0,240,255,0.08);
+    linear-gradient(135deg, rgba(42, 26, 110, 0.66), rgba(106, 29, 117, 0.54)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 40%);
+  box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.03), 0 0 0 1px rgba(255,255,255,0.06);
 }
 
 .hero::before {
@@ -140,10 +133,9 @@ button { cursor: pointer; }
   height: 420px;
   transform: rotate(-8deg);
   background:
-    radial-gradient(circle, rgba(255, 196, 251, 0.26), transparent 46%),
-    linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.36), transparent),
-    linear-gradient(180deg, transparent, rgba(44, 255, 5, 0.14));
-  filter: blur(10px);
+    radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 40%),
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  filter: blur(12px);
   pointer-events: none;
 }
 
@@ -225,8 +217,8 @@ h3 {
 
 .button.primary {
   border-color: rgba(0, 240, 255, 0.76);
-  background: linear-gradient(135deg, #2CFF05 0%, #00F0FF 45%, #FFC4FB 100%);
-  color: #13061f;
+  background: linear-gradient(135deg, #ffffff 0%, #ffd8fd 40%, #72f7ff 100%);
+  color: #34166d;
   font-weight: 900;
   box-shadow: 0 14px 38px rgba(0, 240, 255, 0.20), 0 0 24px rgba(255, 196, 251, 0.10);
 }
@@ -251,6 +243,7 @@ main {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
+  backdrop-filter: blur(16px) saturate(120%);
   box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,0.025);
   backdrop-filter: blur(18px);
 }
@@ -968,6 +961,26 @@ tr:last-child td { border-bottom: 0; }
             <input id="rearAero" type="checkbox" checked />
             <span>Rear aero adjustable</span>
           </label>
+
+          <label>
+            <span>Front aero min, lb</span>
+            <input id="frontAeroMinLb" type="number" value="50" min="0" max="1000" />
+          </label>
+
+          <label>
+            <span>Front aero max, lb</span>
+            <input id="frontAeroMaxLb" type="number" value="350" min="0" max="1200" />
+          </label>
+
+          <label>
+            <span>Rear aero min, lb</span>
+            <input id="rearAeroMinLb" type="number" value="75" min="0" max="1200" />
+          </label>
+
+          <label>
+            <span>Rear aero max, lb</span>
+            <input id="rearAeroMaxLb" type="number" value="650" min="0" max="1600" />
+          </label>
         </form>
 
         <div class="action-row">
@@ -1522,6 +1535,11 @@ tr:last-child td { border-bottom: 0; }
 
     const frontArbRatio = FT.clamp(frontArb, 0.08, 0.95);
     const rearArbRatio = FT.clamp(rearArb, 0.08, 0.95);
+
+    function forzaArbSetting(ratio) {
+      return FT.round(FT.clamp(1 + ratio * 64, 1, 65), 1);
+    }
+
     const frontSpringRatio = FT.clamp(frontSpring, 0.08, 0.92);
     const rearSpringRatio = FT.clamp(rearSpring, 0.08, 0.92);
 
@@ -1613,10 +1631,11 @@ tr:last-child td { border-bottom: 0; }
 
     return {
       antiRollBars: {
-        frontSetting: FT.round(frontArbRatio * 100, 1),
-        rearSetting: FT.round(rearArbRatio * 100, 1),
+        frontSetting: forzaArbSetting(frontArbRatio),
+        rearSetting: forzaArbSetting(rearArbRatio),
         frontRatio: FT.round(frontArbRatio, 2),
         rearRatio: FT.round(rearArbRatio, 2),
+        scale: '1–65',
         frontLabel: ratioLabel(frontArbRatio),
         rearLabel: ratioLabel(rearArbRatio),
       },
@@ -1645,8 +1664,8 @@ tr:last-child td { border-bottom: 0; }
         note: `Damping is shown on Forza's 1–20 scale. Bump is targeted around ${Math.round(bumpFraction * 100)}% of rebound so compression absorbs bumps while rebound controls the return.`
       },
       note: raceType === 'drag'
-        ? 'Drag suspension softens the launch end and stiffens the drive end to help weight transfer. Anti-roll bars, ride height, springs, and damping are shown in game-facing units.'
-        : "Anti-roll bars, ride height, springs, and damping are shown in game-facing units. Fine-tune against each car's exact slider limits."
+        ? 'Drag suspension softens the launch end and stiffens the drive end to help weight transfer. Anti-roll bars use Forza’s 1–65 scale. Ride height, springs, and damping are shown in game-facing units.'
+        : "Anti-roll bars use Forza’s 1–65 scale. Ride height, springs, and damping are shown in game-facing units. Fine-tune against each car's exact slider limits."
     };
   }
 
@@ -1723,9 +1742,34 @@ tr:last-child td { border-bottom: 0; }
   }
 
   function buildAeroAndBrakes(ctx) {
-    const { raceType, surfacePreset, classFactor, weightDistribution, frontAero, rearAero, bodyPreset, handlingPreset } = ctx;
+    const { raceType, surfacePreset, classFactor, weightDistribution, weight, frontAero, rearAero, frontAeroMinLb, frontAeroMaxLb, rearAeroMinLb, rearAeroMaxLb, bodyPreset, handlingPreset } = ctx;
     let frontRatio = null;
     let rearRatio = null;
+
+    function configuredAeroRange(axis) {
+      const minInput = axis === 'front' ? frontAeroMinLb : rearAeroMinLb;
+      const maxInput = axis === 'front' ? frontAeroMaxLb : rearAeroMaxLb;
+      if (Number.isFinite(minInput) && Number.isFinite(maxInput) && maxInput > minInput) {
+        return [FT.clamp(minInput, 0, 1600), FT.clamp(maxInput, 1, 1800)];
+      }
+      return null;
+    }
+
+    function aeroDownforceLb(axis, ratio) {
+      const configured = configuredAeroRange(axis);
+      if (configured) return Math.round(FT.lerp(configured[0], configured[1], ratio));
+
+      const bodyAeroBoost = FT.clamp(bodyPreset.aero, -0.06, 0.14);
+      const surfaceCut = surfacePreset.softness * 0.08;
+      const safeWeight = FT.clamp(weight || 3200, 1200, 6500);
+      const frontMin = 25 + safeWeight * 0.012;
+      const rearMin = 35 + safeWeight * 0.016;
+      const frontMax = 85 + safeWeight * (0.075 + classFactor * 0.055 + bodyAeroBoost - surfaceCut);
+      const rearMax = 110 + safeWeight * (0.095 + classFactor * 0.075 + bodyAeroBoost - surfaceCut);
+      const minLb = axis === 'front' ? FT.clamp(frontMin, 20, 180) : FT.clamp(rearMin, 35, 260);
+      const maxLb = axis === 'front' ? FT.clamp(frontMax, minLb + 40, 650) : FT.clamp(rearMax, minLb + 60, 900);
+      return Math.round(FT.lerp(minLb, maxLb, ratio));
+    }
 
     if (frontAero) {
       if (raceType === 'drag') frontRatio = 0.05;
@@ -1761,11 +1805,18 @@ tr:last-child td { border-bottom: 0; }
           ? 'Rear aero is missing, so use mechanical rear grip if high-speed oversteer appears.'
           : raceType === 'drag' ? 'Minimize aero for straight-line speed.' : 'Use aero balance to fix only high-speed problems.';
 
+    const frontAeroRatio = frontRatio === null ? null : FT.round(FT.clamp(frontRatio, 0, 1), 2);
+    const rearAeroRatio = rearRatio === null ? null : FT.round(FT.clamp(rearRatio, 0, 1), 2);
+
     return {
       aero: {
-        frontRatio: frontRatio === null ? null : FT.round(FT.clamp(frontRatio, 0, 1), 2),
-        rearRatio: rearRatio === null ? null : FT.round(FT.clamp(rearRatio, 0, 1), 2),
-        note: noAeroNote,
+        frontRatio: frontAeroRatio,
+        rearRatio: rearAeroRatio,
+        frontDownforceLb: frontAeroRatio === null ? null : aeroDownforceLb('front', frontAeroRatio),
+        rearDownforceLb: rearAeroRatio === null ? null : aeroDownforceLb('rear', rearAeroRatio),
+        frontLabel: frontAeroRatio === null ? null : ratioLabel(frontAeroRatio),
+        rearLabel: rearAeroRatio === null ? null : ratioLabel(rearAeroRatio),
+        note: noAeroNote + ' Aero output is shown in pounds of downforce, mapped through the min/max aero ranges entered above. If you leave the defaults, treat the value as an estimate.',
       },
       brakes: {
         balanceFrontPercent: FT.round(FT.clamp(brakeBalanceFront, 45, 58), 1),
@@ -1827,6 +1878,10 @@ tr:last-child td { border-bottom: 0; }
     );
     const frontAero = options.frontAero !== undefined ? !!options.frontAero : !!options.adjustableAero;
     const rearAero = options.rearAero !== undefined ? !!options.rearAero : !!options.adjustableAero;
+    const frontAeroMinLb = Number.isFinite(parseFloat(options.frontAeroMinLb)) ? parseFloat(options.frontAeroMinLb) : null;
+    const frontAeroMaxLb = Number.isFinite(parseFloat(options.frontAeroMaxLb)) ? parseFloat(options.frontAeroMaxLb) : null;
+    const rearAeroMinLb = Number.isFinite(parseFloat(options.rearAeroMinLb)) ? parseFloat(options.rearAeroMinLb) : null;
+    const rearAeroMaxLb = Number.isFinite(parseFloat(options.rearAeroMaxLb)) ? parseFloat(options.rearAeroMaxLb) : null;
 
     const ctx = {
       carClass,
@@ -1850,6 +1905,10 @@ tr:last-child td { border-bottom: 0; }
       idealTopSpeedMph,
       frontAero,
       rearAero,
+      frontAeroMinLb,
+      frontAeroMaxLb,
+      rearAeroMinLb,
+      rearAeroMaxLb,
     };
 
     const tires = buildTires(ctx);
@@ -1898,6 +1957,10 @@ tr:last-child td { border-bottom: 0; }
         idealTopSpeedMph: FT.round(idealTopSpeedMph, 0),
         frontAero,
         rearAero,
+        frontAeroMinLb,
+        frontAeroMaxLb,
+        rearAeroMinLb,
+        rearAeroMaxLb,
       },
       tires,
       alignment,
@@ -2342,6 +2405,10 @@ tr:last-child td { border-bottom: 0; }
       tireDiameterInches: $('#tireDiameterInches').value,
       frontAero: $('#frontAero').checked,
       rearAero: $('#rearAero').checked,
+      frontAeroMinLb: $('#frontAeroMinLb').value,
+      frontAeroMaxLb: $('#frontAeroMaxLb').value,
+      rearAeroMinLb: $('#rearAeroMinLb').value,
+      rearAeroMaxLb: $('#rearAeroMaxLb').value,
     };
   }
 
@@ -2396,8 +2463,8 @@ tr:last-child td { border-bottom: 0; }
         ], tune.alignment.note)}
 
         ${renderCard('Anti-roll bars', [
-          ['Front setting', `${tune.antiRollBars.frontSetting ?? FT.round(tune.antiRollBars.frontRatio * 100, 1)} (${tune.antiRollBars.frontLabel})`],
-          ['Rear setting', `${tune.antiRollBars.rearSetting ?? FT.round(tune.antiRollBars.rearRatio * 100, 1)} (${tune.antiRollBars.rearLabel})`],
+          ['Front setting', `${tune.antiRollBars.frontSetting ?? FT.round(1 + tune.antiRollBars.frontRatio * 64, 1)} / 65 (${tune.antiRollBars.frontLabel})`],
+          ['Rear setting', `${tune.antiRollBars.rearSetting ?? FT.round(1 + tune.antiRollBars.rearRatio * 64, 1)} / 65 (${tune.antiRollBars.rearLabel})`],
         ], tune.suspensionNote)}
 
         ${renderCard('Springs & ride height', [
@@ -2504,10 +2571,19 @@ tr:last-child td { border-bottom: 0; }
     return rows;
   }
 
+  function formatAero(axis, tune) {
+    const ratio = axis === 'front' ? tune.aero.frontRatio : tune.aero.rearRatio;
+    const downforce = axis === 'front' ? tune.aero.frontDownforceLb : tune.aero.rearDownforceLb;
+    const label = axis === 'front' ? tune.aero.frontLabel : tune.aero.rearLabel;
+    if (ratio === null) return 'Not adjustable';
+    if (downforce !== undefined && downforce !== null) return `${downforce} lb (${label || 'estimated'})`;
+    return `Legacy ratio ${ratio}`;
+  }
+
   function aeroRows(tune) {
     const rows = [];
-    rows.push(['Front aero', tune.aero.frontRatio === null ? 'Not adjustable' : tune.aero.frontRatio]);
-    rows.push(['Rear aero', tune.aero.rearRatio === null ? 'Not adjustable' : tune.aero.rearRatio]);
+    rows.push(['Front aero', formatAero('front', tune)]);
+    rows.push(['Rear aero', formatAero('rear', tune)]);
     return rows;
   }
 
@@ -2576,6 +2652,10 @@ tr:last-child td { border-bottom: 0; }
     $('#tireDiameterInches').value = saved.gearing.tireDiameterInches || $('#tireDiameterInches').value;
     $('#frontAero').checked = saved.summary.frontAero !== undefined ? saved.summary.frontAero : saved.aero.frontRatio !== null;
     $('#rearAero').checked = saved.summary.rearAero !== undefined ? saved.summary.rearAero : saved.aero.rearRatio !== null;
+    $('#frontAeroMinLb').value = saved.summary.frontAeroMinLb ?? $('#frontAeroMinLb').value;
+    $('#frontAeroMaxLb').value = saved.summary.frontAeroMaxLb ?? $('#frontAeroMaxLb').value;
+    $('#rearAeroMinLb').value = saved.summary.rearAeroMinLb ?? $('#rearAeroMinLb').value;
+    $('#rearAeroMaxLb').value = saved.summary.rearAeroMaxLb ?? $('#rearAeroMaxLb').value;
     state.raceType = saved.summary.raceType;
     state.surface = saved.summary.surface;
     state.frontWeightTouched = true;
@@ -2599,7 +2679,7 @@ tr:last-child td { border-bottom: 0; }
     lines.push(`Brakes: ${tune.brakes.balanceFrontPercent}% front / ${tune.brakes.pressurePercent}% pressure`);
     const diff = diffRows(tune).map(([label, value]) => `${label} ${value}`).join(', ');
     lines.push(`Diff: ${diff}`);
-    lines.push(`Aero: front ${tune.aero.frontRatio === null ? 'not adjustable' : tune.aero.frontRatio}, rear ${tune.aero.rearRatio === null ? 'not adjustable' : tune.aero.rearRatio}`);
+    lines.push(`Aero: front ${tune.aero.frontRatio === null ? 'not adjustable' : `${tune.aero.frontDownforceLb ?? tune.aero.frontRatio} lb`}, rear ${tune.aero.rearRatio === null ? 'not adjustable' : `${tune.aero.rearDownforceLb ?? tune.aero.rearRatio} lb`}`);
     lines.push(`Gearing: final drive ${tune.gearing.finalDrive.toFixed(2)}, ${tune.gearing.gears.map((g, i) => `G${i + 1} ${g.toFixed(2)}`).join(', ')}`);
     lines.push('');
     lines.push('Notes:');

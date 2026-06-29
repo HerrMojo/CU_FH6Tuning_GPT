@@ -157,6 +157,11 @@
 
     const frontArbRatio = FT.clamp(frontArb, 0.08, 0.95);
     const rearArbRatio = FT.clamp(rearArb, 0.08, 0.95);
+
+    function forzaArbSetting(ratio) {
+      return FT.round(FT.clamp(1 + ratio * 64, 1, 65), 1);
+    }
+
     const frontSpringRatio = FT.clamp(frontSpring, 0.08, 0.92);
     const rearSpringRatio = FT.clamp(rearSpring, 0.08, 0.92);
 
@@ -248,10 +253,11 @@
 
     return {
       antiRollBars: {
-        frontSetting: FT.round(frontArbRatio * 100, 1),
-        rearSetting: FT.round(rearArbRatio * 100, 1),
+        frontSetting: forzaArbSetting(frontArbRatio),
+        rearSetting: forzaArbSetting(rearArbRatio),
         frontRatio: FT.round(frontArbRatio, 2),
         rearRatio: FT.round(rearArbRatio, 2),
+        scale: '1–65',
         frontLabel: ratioLabel(frontArbRatio),
         rearLabel: ratioLabel(rearArbRatio),
       },
@@ -280,8 +286,8 @@
         note: `Damping is shown on Forza's 1–20 scale. Bump is targeted around ${Math.round(bumpFraction * 100)}% of rebound so compression absorbs bumps while rebound controls the return.`
       },
       note: raceType === 'drag'
-        ? 'Drag suspension softens the launch end and stiffens the drive end to help weight transfer. Anti-roll bars, ride height, springs, and damping are shown in game-facing units.'
-        : "Anti-roll bars, ride height, springs, and damping are shown in game-facing units. Fine-tune against each car's exact slider limits."
+        ? 'Drag suspension softens the launch end and stiffens the drive end to help weight transfer. Anti-roll bars use Forza’s 1–65 scale. Ride height, springs, and damping are shown in game-facing units.'
+        : "Anti-roll bars use Forza’s 1–65 scale. Ride height, springs, and damping are shown in game-facing units. Fine-tune against each car's exact slider limits."
     };
   }
 
@@ -358,9 +364,34 @@
   }
 
   function buildAeroAndBrakes(ctx) {
-    const { raceType, surfacePreset, classFactor, weightDistribution, frontAero, rearAero, bodyPreset, handlingPreset } = ctx;
+    const { raceType, surfacePreset, classFactor, weightDistribution, weight, frontAero, rearAero, frontAeroMinLb, frontAeroMaxLb, rearAeroMinLb, rearAeroMaxLb, bodyPreset, handlingPreset } = ctx;
     let frontRatio = null;
     let rearRatio = null;
+
+    function configuredAeroRange(axis) {
+      const minInput = axis === 'front' ? frontAeroMinLb : rearAeroMinLb;
+      const maxInput = axis === 'front' ? frontAeroMaxLb : rearAeroMaxLb;
+      if (Number.isFinite(minInput) && Number.isFinite(maxInput) && maxInput > minInput) {
+        return [FT.clamp(minInput, 0, 1600), FT.clamp(maxInput, 1, 1800)];
+      }
+      return null;
+    }
+
+    function aeroDownforceLb(axis, ratio) {
+      const configured = configuredAeroRange(axis);
+      if (configured) return Math.round(FT.lerp(configured[0], configured[1], ratio));
+
+      const bodyAeroBoost = FT.clamp(bodyPreset.aero, -0.06, 0.14);
+      const surfaceCut = surfacePreset.softness * 0.08;
+      const safeWeight = FT.clamp(weight || 3200, 1200, 6500);
+      const frontMin = 25 + safeWeight * 0.012;
+      const rearMin = 35 + safeWeight * 0.016;
+      const frontMax = 85 + safeWeight * (0.075 + classFactor * 0.055 + bodyAeroBoost - surfaceCut);
+      const rearMax = 110 + safeWeight * (0.095 + classFactor * 0.075 + bodyAeroBoost - surfaceCut);
+      const minLb = axis === 'front' ? FT.clamp(frontMin, 20, 180) : FT.clamp(rearMin, 35, 260);
+      const maxLb = axis === 'front' ? FT.clamp(frontMax, minLb + 40, 650) : FT.clamp(rearMax, minLb + 60, 900);
+      return Math.round(FT.lerp(minLb, maxLb, ratio));
+    }
 
     if (frontAero) {
       if (raceType === 'drag') frontRatio = 0.05;
@@ -396,11 +427,18 @@
           ? 'Rear aero is missing, so use mechanical rear grip if high-speed oversteer appears.'
           : raceType === 'drag' ? 'Minimize aero for straight-line speed.' : 'Use aero balance to fix only high-speed problems.';
 
+    const frontAeroRatio = frontRatio === null ? null : FT.round(FT.clamp(frontRatio, 0, 1), 2);
+    const rearAeroRatio = rearRatio === null ? null : FT.round(FT.clamp(rearRatio, 0, 1), 2);
+
     return {
       aero: {
-        frontRatio: frontRatio === null ? null : FT.round(FT.clamp(frontRatio, 0, 1), 2),
-        rearRatio: rearRatio === null ? null : FT.round(FT.clamp(rearRatio, 0, 1), 2),
-        note: noAeroNote,
+        frontRatio: frontAeroRatio,
+        rearRatio: rearAeroRatio,
+        frontDownforceLb: frontAeroRatio === null ? null : aeroDownforceLb('front', frontAeroRatio),
+        rearDownforceLb: rearAeroRatio === null ? null : aeroDownforceLb('rear', rearAeroRatio),
+        frontLabel: frontAeroRatio === null ? null : ratioLabel(frontAeroRatio),
+        rearLabel: rearAeroRatio === null ? null : ratioLabel(rearAeroRatio),
+        note: noAeroNote + ' Aero output is shown in pounds of downforce, mapped through the min/max aero ranges entered above. If you leave the defaults, treat the value as an estimate.',
       },
       brakes: {
         balanceFrontPercent: FT.round(FT.clamp(brakeBalanceFront, 45, 58), 1),
@@ -462,6 +500,10 @@
     );
     const frontAero = options.frontAero !== undefined ? !!options.frontAero : !!options.adjustableAero;
     const rearAero = options.rearAero !== undefined ? !!options.rearAero : !!options.adjustableAero;
+    const frontAeroMinLb = Number.isFinite(parseFloat(options.frontAeroMinLb)) ? parseFloat(options.frontAeroMinLb) : null;
+    const frontAeroMaxLb = Number.isFinite(parseFloat(options.frontAeroMaxLb)) ? parseFloat(options.frontAeroMaxLb) : null;
+    const rearAeroMinLb = Number.isFinite(parseFloat(options.rearAeroMinLb)) ? parseFloat(options.rearAeroMinLb) : null;
+    const rearAeroMaxLb = Number.isFinite(parseFloat(options.rearAeroMaxLb)) ? parseFloat(options.rearAeroMaxLb) : null;
 
     const ctx = {
       carClass,
@@ -485,6 +527,10 @@
       idealTopSpeedMph,
       frontAero,
       rearAero,
+      frontAeroMinLb,
+      frontAeroMaxLb,
+      rearAeroMinLb,
+      rearAeroMaxLb,
     };
 
     const tires = buildTires(ctx);
@@ -533,6 +579,10 @@
         idealTopSpeedMph: FT.round(idealTopSpeedMph, 0),
         frontAero,
         rearAero,
+        frontAeroMinLb,
+        frontAeroMaxLb,
+        rearAeroMinLb,
+        rearAeroMaxLb,
       },
       tires,
       alignment,
