@@ -95,3 +95,21 @@ This revision maps anti-roll bars to Forza’s 1–65 setting range instead of s
 ## Aero range inputs
 
 The app now includes front/rear aero min and max fields in pounds. Enter the minimum and maximum shown by the Forza aero slider for the car, and the calculator will map its internal aero balance to a usable pound value inside that range.
+
+## Tire size input
+
+The gearbox calculator now accepts tire sizes in the standard game/automotive format, such as `225/65R17`, `225 65r17`, or `225-65-17`. The app converts that to tire diameter and circumference internally for gear-speed math, so players no longer need to manually look up tire diameter.
+
+## Tuning type label update
+
+The Grip, Drift, and Drag labels in the tuning type cards use a larger font size for easier scanning.
+
+## SQL export
+
+Use **Export SQL** to download the current tune as a `.sql` file. The file creates a `forza_tunes` table if needed and inserts/replaces the tune by ID. It is designed for SQLite first:
+
+```bash
+sqlite3 forza_tunes.db < exported-tune.sql
+```
+
+The export includes common searchable columns plus a full `tune_json` backup column so future app fields are not lost.

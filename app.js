@@ -130,6 +130,15 @@
       URL.revokeObjectURL(link.href);
     });
 
+
+    $('#exportSqlBtn').addEventListener('click', () => {
+      if (!state.currentTune) generateAndRender();
+      const sql = buildSqlExport(state.currentTune);
+      const safeName = (state.currentTune.carName || 'forza-tune').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      downloadTextFile(sql, `${safeName}-${state.currentTune.summary.carClass}-${state.currentTune.summary.raceType}.sql`, 'application/sql');
+      showToast('SQL export downloaded.');
+    });
+
     $('#clearSavedBtn').addEventListener('click', () => {
       if (confirm('Clear all saved tunes from this browser?')) {
         FT.Storage.clearTunes();
@@ -184,7 +193,7 @@
       gearCount: $('#gearCount').value,
       redlineRpm: $('#redlineRpm').value,
       idealTopSpeedMph: $('#idealTopSpeedMph').value,
-      tireDiameterInches: $('#tireDiameterInches').value,
+      tireSizeCode: $('#tireSizeCode').value,
       frontAero: $('#frontAero').checked,
       rearAero: $('#rearAero').checked,
       frontAeroMinLb: $('#frontAeroMinLb').value,
@@ -279,7 +288,10 @@
             <p class="eyebrow">Gearbox</p>
             <h3>Final drive ${tune.gearing.finalDrive.toFixed(2)}</h3>
           </div>
-          <span class="pill">${tune.gearing.gearCount} gears</span>
+          <div class="gear-pill-stack">
+            <span class="pill">${tune.gearing.gearCount} gears</span>
+            <span class="pill">${escapeHtml(tune.gearing.tireSizeCode || 'tire size')}</span>
+          </div>
         </div>
         ${renderGearGraph(tune)}
         <div class="table-wrap">
@@ -290,6 +302,7 @@
             <tbody>${gearRows}</tbody>
           </table>
         </div>
+        <p class="muted">Tire code ${escapeHtml(tune.gearing.tireSizeCode || 'not set')} calculates to ${tune.gearing.tireDiameterInches} in diameter and ${tune.gearing.tireCircumferenceInches} in circumference for the gearing math.</p>
         <p class="muted">${escapeHtml(tune.gearing.shiftNote)}</p>
         <p class="formula">${escapeHtml(tune.gearing.formula)}</p>
       </section>
@@ -431,7 +444,7 @@
     $('#gearCount').value = saved.gearing.gearCount;
     $('#redlineRpm').value = saved.gearing.redlineRpm || $('#redlineRpm').value;
     $('#idealTopSpeedMph').value = saved.summary.idealTopSpeedMph;
-    $('#tireDiameterInches').value = saved.gearing.tireDiameterInches || $('#tireDiameterInches').value;
+    $('#tireSizeCode').value = saved.gearing.tireSizeCode || saved.summary.tireSizeCode || $('#tireSizeCode').value;
     $('#frontAero').checked = saved.summary.frontAero !== undefined ? saved.summary.frontAero : saved.aero.frontRatio !== null;
     $('#rearAero').checked = saved.summary.rearAero !== undefined ? saved.summary.rearAero : saved.aero.rearRatio !== null;
     $('#frontAeroMinLb').value = saved.summary.frontAeroMinLb ?? $('#frontAeroMinLb').value;
@@ -445,6 +458,144 @@
     state.currentTune = saved;
     renderTune(saved);
     showToast('Tune loaded.');
+  }
+
+  function downloadTextFile(text, fileName, mimeType) {
+    const blob = new Blob([text], { type: mimeType });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  function sqlText(value) {
+    if (value === undefined || value === null || value === '') return 'NULL';
+    return `'${String(value).replace(/'/g, "''")}'`;
+  }
+
+  function sqlNumber(value) {
+    if (value === undefined || value === null || value === '' || Number.isNaN(Number(value))) return 'NULL';
+    return String(Number(value));
+  }
+
+  function buildSqlExport(tune) {
+    const tuneId = tune.id || `tune-${Date.now()}`;
+    const savedAt = tune.savedAt || new Date().toISOString();
+    const gearsJson = JSON.stringify(tune.gearing.gears || []);
+    const tuneJson = JSON.stringify({ ...tune, id: tuneId, savedAt });
+
+    const columns = [
+      'id', 'car_name', 'saved_at', 'car_class', 'race_type', 'surface', 'drivetrain',
+      'engine_location', 'body_type', 'tire_compound', 'suspension_type', 'handling_bias',
+      'horsepower', 'torque', 'weight_lbs', 'front_weight_percent', 'ideal_top_speed_mph',
+      'tire_size_code', 'front_tire_psi', 'rear_tire_psi', 'front_camber', 'rear_camber',
+      'front_toe', 'rear_toe', 'caster', 'front_arb', 'rear_arb', 'front_spring_lb_in',
+      'rear_spring_lb_in', 'front_ride_height_in', 'rear_ride_height_in', 'front_rebound',
+      'rear_rebound', 'front_bump', 'rear_bump', 'brake_balance_front_percent',
+      'brake_pressure_percent', 'front_aero_lb', 'rear_aero_lb', 'final_drive',
+      'gears_json', 'tune_json'
+    ];
+
+    const values = [
+      sqlText(tuneId),
+      sqlText(tune.carName),
+      sqlText(savedAt),
+      sqlText(tune.summary.carClass),
+      sqlText(tune.summary.raceType),
+      sqlText(tune.summary.surface),
+      sqlText(tune.summary.drivetrain),
+      sqlText(tune.summary.engineLocation),
+      sqlText(tune.summary.bodyType),
+      sqlText(tune.summary.tireCompound),
+      sqlText(tune.summary.suspensionType),
+      sqlText(tune.summary.handlingBias),
+      sqlNumber(tune.summary.horsepower),
+      sqlNumber(tune.summary.torque),
+      sqlNumber(tune.summary.weight),
+      sqlNumber(tune.summary.weightDistribution),
+      sqlNumber(tune.summary.idealTopSpeedMph),
+      sqlText(tune.gearing.tireSizeCode || tune.summary.tireSizeCode),
+      sqlNumber(tune.tires.frontPsi),
+      sqlNumber(tune.tires.rearPsi),
+      sqlNumber(tune.alignment.frontCamber),
+      sqlNumber(tune.alignment.rearCamber),
+      sqlNumber(tune.alignment.frontToe),
+      sqlNumber(tune.alignment.rearToe),
+      sqlNumber(tune.alignment.caster),
+      sqlNumber(tune.antiRollBars.frontSetting),
+      sqlNumber(tune.antiRollBars.rearSetting),
+      sqlNumber(tune.springs.frontRateLbIn),
+      sqlNumber(tune.springs.rearRateLbIn),
+      sqlNumber(tune.springs.frontRideHeightIn),
+      sqlNumber(tune.springs.rearRideHeightIn),
+      sqlNumber(tune.damping.frontReboundSetting),
+      sqlNumber(tune.damping.rearReboundSetting),
+      sqlNumber(tune.damping.frontBumpSetting),
+      sqlNumber(tune.damping.rearBumpSetting),
+      sqlNumber(tune.brakes.balanceFrontPercent),
+      sqlNumber(tune.brakes.pressurePercent),
+      sqlNumber(tune.aero.frontDownforceLb),
+      sqlNumber(tune.aero.rearDownforceLb),
+      sqlNumber(tune.gearing.finalDrive),
+      sqlText(gearsJson),
+      sqlText(tuneJson)
+    ];
+
+    return `-- FH6GPT Tune Lab SQL export
+-- Import with: sqlite3 forza_tunes.db < this-file.sql
+
+CREATE TABLE IF NOT EXISTS forza_tunes (
+  id TEXT PRIMARY KEY,
+  car_name TEXT,
+  saved_at TEXT,
+  car_class TEXT,
+  race_type TEXT,
+  surface TEXT,
+  drivetrain TEXT,
+  engine_location TEXT,
+  body_type TEXT,
+  tire_compound TEXT,
+  suspension_type TEXT,
+  handling_bias TEXT,
+  horsepower INTEGER,
+  torque INTEGER,
+  weight_lbs INTEGER,
+  front_weight_percent REAL,
+  ideal_top_speed_mph INTEGER,
+  tire_size_code TEXT,
+  front_tire_psi REAL,
+  rear_tire_psi REAL,
+  front_camber REAL,
+  rear_camber REAL,
+  front_toe REAL,
+  rear_toe REAL,
+  caster REAL,
+  front_arb REAL,
+  rear_arb REAL,
+  front_spring_lb_in INTEGER,
+  rear_spring_lb_in INTEGER,
+  front_ride_height_in REAL,
+  rear_ride_height_in REAL,
+  front_rebound REAL,
+  rear_rebound REAL,
+  front_bump REAL,
+  rear_bump REAL,
+  brake_balance_front_percent INTEGER,
+  brake_pressure_percent INTEGER,
+  front_aero_lb INTEGER,
+  rear_aero_lb INTEGER,
+  final_drive REAL,
+  gears_json TEXT,
+  tune_json TEXT
+);
+
+INSERT OR REPLACE INTO forza_tunes (
+  ${columns.join(',\n  ')}
+) VALUES (
+  ${values.join(',\n  ')}
+);
+`;
   }
 
   function formatTuneForClipboard(tune) {

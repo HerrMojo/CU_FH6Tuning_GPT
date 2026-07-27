@@ -14,6 +14,32 @@
     return Math.PI * tireDiameterInches;
   }
 
+  function parseTireSizeCode(sizeCode) {
+    const raw = String(sizeCode || '').trim();
+    // Supports common Forza/real-world formats such as 225/65R17, 225 65r17, 225-65-17.
+    const match = raw.match(/(\d{3})\s*[\/\-\s]\s*(\d{2})\s*(?:R|ZR)?\s*[\/\-\s]?\s*(\d{2})/i);
+    if (!match) return null;
+
+    const widthMm = FT.clamp(parseFloat(match[1]), 125, 405);
+    const aspectRatio = FT.clamp(parseFloat(match[2]), 20, 95);
+    const wheelDiameterInches = FT.clamp(parseFloat(match[3]), 10, 26);
+    const sidewallInches = (widthMm * (aspectRatio / 100)) / 25.4;
+    const tireDiameterInches = wheelDiameterInches + sidewallInches * 2;
+    const tireCircumferenceInches = Math.PI * tireDiameterInches;
+
+    return {
+      raw,
+      normalized: `${Math.round(widthMm)}/${Math.round(aspectRatio)}R${Math.round(wheelDiameterInches)}`,
+      widthMm: Math.round(widthMm),
+      aspectRatio: Math.round(aspectRatio),
+      wheelDiameterInches: Math.round(wheelDiameterInches),
+      sidewallInches: FT.round(sidewallInches, 2),
+      tireDiameterInches: FT.round(tireDiameterInches, 2),
+      tireCircumferenceInches: FT.round(tireCircumferenceInches, 2),
+    };
+  }
+
+
   function getFirstGearPercent(raceType, surface, classFactor, horsepower, drivetrain) {
     const race = FT.RACE_PRESETS[raceType] || FT.RACE_PRESETS.grip;
     const surfacePreset = FT.SURFACE_PRESETS[surface] || FT.SURFACE_PRESETS.pavement;
@@ -62,10 +88,15 @@
     const redlineRpm = FT.clamp(parseFloat(options.redlineRpm) || 7000, 4000, 12000);
     const horsepower = FT.clamp(parseFloat(options.horsepower) || 450, 60, 2000);
     const idealTopSpeedMph = FT.clamp(parseFloat(options.idealTopSpeedMph) || 180, 60, 360);
-    const tireDiameterInches = FT.clamp(parseFloat(options.tireDiameterInches) || 26, 18, 36);
+    const parsedTire = parseTireSizeCode(options.tireSizeCode || options.tireCode || options.tireDiameterInches);
+    const tireDiameterInches = parsedTire
+      ? parsedTire.tireDiameterInches
+      : FT.clamp(parseFloat(options.tireDiameterInches) || 26, 18, 36);
     const tireCircumferenceInches = options.tireCircumferenceInches
       ? FT.clamp(parseFloat(options.tireCircumferenceInches), 50, 120)
-      : estimateTireCircumferenceInches(tireDiameterInches);
+      : parsedTire
+        ? parsedTire.tireCircumferenceInches
+        : estimateTireCircumferenceInches(tireDiameterInches);
 
     const classFactor = FT.getClassFactor(carClass);
     const firstGearPercent = getFirstGearPercent(raceType, surface, classFactor, horsepower, drivetrain);
@@ -105,9 +136,13 @@
       redlineSpeeds,
       idealTopSpeedMph: FT.round(idealTopSpeedMph, 0),
       firstGearSpeed: FT.round(firstGearSpeed, 1),
-      tireDiameterInches: FT.round(tireDiameterInches, 1),
+      tireSizeCode: parsedTire ? parsedTire.normalized : `${FT.round(tireDiameterInches, 1)} in diameter`,
+      tireWidthMm: parsedTire ? parsedTire.widthMm : null,
+      tireAspectRatio: parsedTire ? parsedTire.aspectRatio : null,
+      wheelDiameterInches: parsedTire ? parsedTire.wheelDiameterInches : null,
+      tireDiameterInches: FT.round(tireDiameterInches, 2),
       redlineRpm: Math.round(redlineRpm),
-      tireCircumferenceInches: FT.round(tireCircumferenceInches, 1),
+      tireCircumferenceInches: FT.round(tireCircumferenceInches, 2),
       overallTopRatio: FT.round(overallTopRatio, 2),
       overallFirstRatio: FT.round(overallFirstRatio, 2),
       shiftNote,
@@ -120,5 +155,6 @@
     speedAtRedlineMph,
     overallRatioForSpeed,
     estimateTireCircumferenceInches,
+    parseTireSizeCode,
   };
 })();

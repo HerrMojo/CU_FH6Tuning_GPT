@@ -577,6 +577,7 @@
         weightDistribution,
         classFactor: FT.round(classFactor, 2),
         idealTopSpeedMph: FT.round(idealTopSpeedMph, 0),
+        tireSizeCode: options.tireSizeCode || options.tireCode || '225/65R17',
         frontAero,
         rearAero,
         frontAeroMinLb,

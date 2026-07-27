@@ -307,8 +307,9 @@ main {
   color: var(--cyan);
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+  line-height: 1;
 }
 
 .option-card strong {
@@ -742,4 +743,15 @@ tr:last-child td { border-bottom: 0; }
   .gear-bar-row {
     grid-template-columns: 30px minmax(90px, 1fr) 58px;
   }
+}
+
+.gear-pill-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 680px) {
+  .gear-pill-stack { justify-content: flex-start; }
 }
